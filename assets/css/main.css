@@ -1,0 +1,190 @@
+/* Box sizing rules */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Remove default padding */
+ul[class],
+ol[class] {
+    padding: 0;
+}
+
+/* Remove default margin */
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+ul[class],
+ol[class],
+li,
+figure,
+figcaption,
+blockquote,
+dl,
+dd {
+    margin: 0;
+}
+
+/* Set core body defaults */
+body {
+    min-height: 100vh;
+    scroll-behavior: smooth;
+    text-rendering: optimizeSpeed;
+    line-height: 1.5;
+}
+
+/* Remove list styles on ul, ol elements with a class attribute */
+ul[class],
+ol[class] {
+    list-style: none;
+}
+
+/* A elements that don't have a class get default styles */
+a:not([class]) {
+    text-decoration-skip-ink: auto;
+}
+
+/* Make images easier to work with */
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* Natural flow and rhythm in articles by default */
+article > * + * {
+    margin-top: 1em;
+}
+
+/* Inherit fonts for inputs and buttons */
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+/* Remove all animations and transitions for people that prefer not to see them */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+@font-face {
+    font-family: "SF Regular";
+    src: url("../fonts/SF-Pro-Display-Regular.otf");
+}
+@font-face {
+    font-family: "SF Bold";
+    src: url("../fonts/SF-Pro-Display-Bold.otf");
+}
+:root {
+    --accent: #000;
+    --alternate: #fff;
+    --drop-shadow: 0px 1px 2px rgba(0, 0, 0, 0.04),
+    	0px 2px 4px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04);
+}
+
+:root {
+    font-size: 16px;
+    font-family: "SF Regular";
+    color: var(--accent);
+}
+
+html,
+body {
+    height: 100%;
+    overflow: hidden;
+}
+
+.page-content {
+    height: 100%;
+    max-width: 1820px;
+    margin: 0 auto;
+    padding-top: 30px;
+}
+
+.clock * {
+    display: block;
+}
+.clock__greeting, .clock__date {
+    font-size: 1.125rem;
+    opacity: 0.5;
+}
+.clock__time {
+    font-size: 3rem;
+    font-family: "SF Bold";
+    line-height: 90%;
+}
+
+.day {
+    height: 370px;
+    box-shadow: var(--drop-shadow);
+    border-radius: 2px;
+    overflow: hidden;
+}
+.day__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 45px;
+    width: 100%;
+    border-bottom: 1px solid var(--accent);
+    padding: 0 15px;
+}
+.day__date {
+    font-size: 0.875rem;
+    font-family: "SF Bold";
+}
+.day__badges {
+    font-size: 0;
+}
+.day__badges * {
+    font-size: 0.625rem;
+    font-family: "SF Bold";
+    background-color: var(--accent);
+    color: var(--alternate);
+    padding: 5px 8px;
+    border-radius: 15px;
+    margin-right: 8px;
+}
+.day__badges *:last-of-type {
+    margin: 0;
+}
+.day__weather {
+    cursor: pointer;
+}
+.day__body {
+    height: calc(100% - 45px);
+    padding: 0 15px;
+}
+
+.task {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+.task:last-of-type {
+    border: none;
+}
+.task:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    box-shadow: 20px 0 0 rgba(0, 0, 0, 0.05), -20px 0 0 rgba(0, 0, 0, 0.05);
+}
+
+.week {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    width: 100%;
+    margin-top: 55px;
+}

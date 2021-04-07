@@ -1,0 +1,18 @@
+:root {
+	font-size: 16px;
+	font-family: "SF Regular";
+	color: var(--accent);
+}
+
+html,
+body {
+	height: 100%;
+	overflow: hidden;
+}
+
+.page-content {
+	height: 100%;
+	max-width: 1820px;
+	margin: 0 auto;
+	padding-top: 30px;
+}

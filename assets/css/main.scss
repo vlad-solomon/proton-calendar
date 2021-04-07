@@ -1,0 +1,13 @@
+// 1-TOOLS
+@import "1-tools/reset.scss";
+@import "1-tools/fonts.scss";
+@import "1-tools/variables.scss";
+@import "1-tools/global.scss";
+
+// 2-BASICS
+@import "2-basics/clock.scss";
+@import "2-basics/day.scss";
+@import "2-basics/task.scss";
+
+// 3-LAYOUTS
+@import "3-layouts/week.scss";

@@ -1,0 +1,42 @@
+.day {
+	height: 370px;
+	box-shadow: var(--drop-shadow);
+	border-radius: 2px;
+	overflow: hidden;
+	&__head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		height: 45px;
+		width: 100%;
+		border-bottom: 1px solid var(--accent);
+		padding: 0 15px;
+	}
+	&__date {
+		font-size: 0.875rem;
+		font-family: "SF Bold";
+	}
+	&__badges {
+		font-size: 0;
+		* {
+			font-size: 0.625rem;
+			font-family: "SF Bold";
+			background-color: var(--accent);
+			color: var(--alternate);
+			padding: 5px 8px;
+			border-radius: 15px;
+			margin-right: 8px;
+			&:last-of-type {
+				margin: 0;
+			}
+		}
+	}
+	&__weather {
+		cursor: pointer;
+	}
+	&__body {
+		height: calc(100% - 45px);
+		padding: 0 15px;
+		// overflow: auto;
+	}
+}
