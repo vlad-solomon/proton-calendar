@@ -4,6 +4,10 @@
 	color: var(--accent);
 }
 
+::selection {
+	background-color: transparent;
+}
+
 html,
 body {
 	height: 100%;
@@ -11,8 +15,13 @@ body {
 }
 
 .page-content {
+	position: relative;
 	height: 100%;
 	max-width: 1820px;
 	margin: 0 auto;
 	padding-top: 30px;
+}
+
+.hidden {
+	display: none !important;
 }

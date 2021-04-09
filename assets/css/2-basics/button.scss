@@ -1,0 +1,17 @@
+.button {
+	color: var(--alternate);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 50px;
+	width: 50px;
+	background: var(--button-background);
+	background-color: var(--accent);
+	cursor: pointer;
+	border-radius: 25px;
+	&--text {
+		font-family: "SF Bold";
+		padding: 0 30px;
+		width: auto;
+	}
+}

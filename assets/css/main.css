@@ -87,14 +87,18 @@ select {
 :root {
     --accent: #000;
     --alternate: #fff;
-    --drop-shadow: 0px 1px 2px rgba(0, 0, 0, 0.04),
-    	0px 2px 4px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04);
+    --drop-shadow: 0px 1px 2px rgba(0, 0, 0, 0.04), 0px 2px 4px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04);
+    --button-background: radial-gradient(106.63% 70.07% at 70% 22%, #4d4d4d 0%, #000000 100%);
 }
 
 :root {
     font-size: 16px;
     font-family: "SF Regular";
     color: var(--accent);
+}
+
+::selection {
+    background-color: transparent;
 }
 
 html,
@@ -104,10 +108,15 @@ body {
 }
 
 .page-content {
+    position: relative;
     height: 100%;
     max-width: 1820px;
     margin: 0 auto;
     padding-top: 30px;
+}
+
+.hidden {
+    display: none !important;
 }
 
 .clock * {
@@ -143,14 +152,19 @@ body {
     font-family: "SF Bold";
 }
 .day__badges {
+    display: flex;
     font-size: 0;
 }
 .day__badges * {
+    padding: 0 6px;
+    text-align: center;
+    display: block;
+    height: 16px;
+    min-width: 16px;
     font-size: 0.625rem;
     font-family: "SF Bold";
     background-color: var(--accent);
     color: var(--alternate);
-    padding: 5px 8px;
     border-radius: 15px;
     margin-right: 8px;
 }
@@ -179,6 +193,34 @@ body {
 .task:hover {
     background-color: rgba(0, 0, 0, 0.05);
     box-shadow: 20px 0 0 rgba(0, 0, 0, 0.05), -20px 0 0 rgba(0, 0, 0, 0.05);
+}
+
+.button {
+    color: var(--alternate);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    width: 50px;
+    background: var(--button-background);
+    background-color: var(--accent);
+    cursor: pointer;
+    border-radius: 25px;
+}
+.button--text {
+    font-family: "SF Bold";
+    padding: 0 30px;
+    width: auto;
+}
+
+.calendar-controls {
+    display: flex;
+    position: absolute;
+    top: 50px;
+    right: 0;
+}
+.calendar-controls .button:not(:last-of-type) {
+    margin-right: 8px;
 }
 
 .week {

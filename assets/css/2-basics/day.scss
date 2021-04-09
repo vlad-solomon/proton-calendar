@@ -17,13 +17,18 @@
 		font-family: "SF Bold";
 	}
 	&__badges {
+		display: flex;
 		font-size: 0;
 		* {
+			padding: 0 6px;
+			text-align: center;
+			display: block;
+			height: 16px;
+			min-width: 16px;
 			font-size: 0.625rem;
 			font-family: "SF Bold";
 			background-color: var(--accent);
 			color: var(--alternate);
-			padding: 5px 8px;
 			border-radius: 15px;
 			margin-right: 8px;
 			&:last-of-type {

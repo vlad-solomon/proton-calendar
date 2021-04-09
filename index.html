@@ -8,14 +8,22 @@
 		<link rel="stylesheet" href="assets/css/main.css" />
 	</head>
 	<body>
+		<!-- <button id="prev">prev</button> -->
+		<!-- <button id="next">next</button> -->
+		<!-- <button id="today">jump to today</button> -->
 		<div class="page-content">
 			<div class="clock">
 				<span class="clock__greeting">Good morning, User!</span>
-				<span class="clock__time">00:00:00</span>
+				<span class="clock__time">HH:MM:SS</span>
 				<span class="clock__date">Week, Year</span>
 			</div>
+			<div class="calendar-controls">
+				<div id="today" class="button button--text hidden">Jump to today</div>
+				<div id="prev" class="button"><img src="assets/img/prev-week.svg" alt="prev-week" /></div>
+				<div id="next" class="button"><img src="assets/img/next-week.svg" alt="next-week" /></div>
+			</div>
 			<div class="week">
-				<div class="day">
+				<!-- <div class="day">
 					<div class="day__head">
 						<span class="day__date">Name of Day, Day.Month</span>
 						<div class="day__badges">
@@ -32,8 +40,16 @@
 							<span class="task__text">Go to the dentist appointment</span>
 						</div>
 					</div>
-				</div>
+				</div> -->
 			</div>
 		</div>
+
+		<script src="https://momentjs.com/downloads/moment.js"></script>
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+			integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+			crossorigin="anonymous"
+		></script>
+		<script src="assets/js/app.js"></script>
 	</body>
 </html>
