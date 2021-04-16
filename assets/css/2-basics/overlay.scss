@@ -1,0 +1,20 @@
+.overlay {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	padding-top: 90px;
+	z-index: 1;
+	background-color: rgba(255, 255, 255, 0.4);
+	backdrop-filter: blur(10px);
+	&__heading {
+		display: block;
+		font-size: 3rem;
+		font-family: "SF Bold";
+		margin-bottom: 40px;
+	}
+}

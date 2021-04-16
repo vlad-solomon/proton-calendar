@@ -14,4 +14,15 @@
 		padding: 0 30px;
 		width: auto;
 	}
+	&--reminder {
+		height: 35px;
+		width: 100%;
+		font-size: 0.875rem;
+		text-transform: uppercase;
+	}
+	&--off {
+		color: rgba(0, 0, 0, 0.5) !important;
+		border: 1px solid rgba(0, 0, 0, 0.05);
+		background: none !important;
+	}
 }

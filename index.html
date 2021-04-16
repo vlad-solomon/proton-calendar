@@ -8,9 +8,7 @@
 		<link rel="stylesheet" href="assets/css/main.css" />
 	</head>
 	<body>
-		<!-- <button id="prev">prev</button> -->
-		<!-- <button id="next">next</button> -->
-		<!-- <button id="today">jump to today</button> -->
+		<div class="overlay hidden"></div>
 		<div class="page-content">
 			<div class="clock">
 				<span class="clock__greeting">Good morning, User!</span>
@@ -22,34 +20,33 @@
 				<div id="prev" class="button"><img src="assets/img/prev-week.svg" alt="prev-week" /></div>
 				<div id="next" class="button"><img src="assets/img/next-week.svg" alt="next-week" /></div>
 			</div>
-			<div class="week">
-				<!-- <div class="day">
-					<div class="day__head">
-						<span class="day__date">Name of Day, Day.Month</span>
-						<div class="day__badges">
-							<span class="day__weather">Check weather</span>
-							<span class="day__today">Today</span>
-							<span class="day__task">4</span>
-						</div>
-					</div>
-					<div class="day__body">
-						<div class="task">
-							<span class="task__text">Take out the trash</span>
-						</div>
-						<div class="task">
-							<span class="task__text">Go to the dentist appointment</span>
-						</div>
-					</div>
-				</div> -->
-			</div>
+			<div class="week"></div>
 		</div>
 
-		<script src="https://momentjs.com/downloads/moment.js"></script>
 		<script
 			src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
 			integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
 			crossorigin="anonymous"
 		></script>
+		<script src="https://momentjs.com/downloads/moment.js"></script>
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"
+			integrity="sha512-UNM1njAgOFUa74Z0bADwAq8gbTcqZC8Ej4xPSzpnh0l6KMevwvkBvbldF9uR++qKeJ+MOZHRjV1HZjoRvjDfNQ=="
+			crossorigin="anonymous"
+		></script>
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"
+			integrity="sha512-KaIyHb30iXTXfGyI9cyKFUIRSSuekJt6/vqXtyQKhQP6ozZEGY8nOtRS6fExqE4+RbYHus2yGyYg1BrqxzV6YA=="
+			crossorigin="anonymous"
+		></script>
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js"
+			integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
+			crossorigin="anonymous"
+		></script>
+		<script src="assets/js/weeks.js"></script>
+		<script src="assets/js/templates.js"></script>
+
 		<script src="assets/js/app.js"></script>
 	</body>
 </html>

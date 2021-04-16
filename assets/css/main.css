@@ -45,7 +45,8 @@ ol[class] {
 
 /* A elements that don't have a class get default styles */
 a:not([class]) {
-    text-decoration-skip-ink: auto;
+    -webkit-text-decoration-skip: ink;
+            text-decoration-skip-ink: auto;
 }
 
 /* Make images easier to work with */
@@ -89,6 +90,7 @@ select {
     --alternate: #fff;
     --drop-shadow: 0px 1px 2px rgba(0, 0, 0, 0.04), 0px 2px 4px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04);
     --button-background: radial-gradient(106.63% 70.07% at 70% 22%, #4d4d4d 0%, #000000 100%);
+    --task-hover: #f2f2f2;
 }
 
 :root {
@@ -97,8 +99,12 @@ select {
     color: var(--accent);
 }
 
-::selection {
-    background-color: transparent;
+* {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+    display: none;
 }
 
 html,
@@ -133,13 +139,16 @@ body {
 }
 
 .day {
-    height: 370px;
+    display: flex;
+    flex-direction: column;
+    height: 364px;
     box-shadow: var(--drop-shadow);
     border-radius: 2px;
     overflow: hidden;
 }
 .day__head {
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: space-between;
     height: 45px;
@@ -175,27 +184,28 @@ body {
     cursor: pointer;
 }
 .day__body {
-    height: calc(100% - 45px);
+    flex-grow: 1;
     padding: 0 15px;
+    overflow: auto;
+}
+.day__tasks-wrapper {
+    min-height: 100%;
+    background-image: url("../img/divider.png");
 }
 
-.task {
+.task, .add-task {
     display: flex;
     align-items: center;
     height: 40px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     font-size: 0.875rem;
     cursor: pointer;
 }
-.task:last-of-type {
-    border: none;
-}
-.task:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    box-shadow: 20px 0 0 rgba(0, 0, 0, 0.05), -20px 0 0 rgba(0, 0, 0, 0.05);
+.task:hover, .add-task:hover {
+    background-color: var(--task-hover);
+    box-shadow: -20px 0 0 1px var(--task-hover), 20px 0 0 1px var(--task-hover);
 }
 
-.button {
+.button, .create-task .cell .week-days__button {
     color: var(--alternate);
     display: flex;
     justify-content: center;
@@ -212,6 +222,17 @@ body {
     padding: 0 30px;
     width: auto;
 }
+.button--reminder {
+    height: 35px;
+    width: 100%;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+}
+.button--off {
+    color: rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    background: none !important;
+}
 
 .calendar-controls {
     display: flex;
@@ -219,8 +240,30 @@ body {
     top: 50px;
     right: 0;
 }
-.calendar-controls .button:not(:last-of-type) {
+.calendar-controls .button:not(:last-of-type), .calendar-controls .create-task .cell .week-days__button:not(:last-of-type), .create-task .cell .calendar-controls .week-days__button:not(:last-of-type) {
     margin-right: 8px;
+}
+
+.overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    padding-top: 90px;
+    z-index: 1;
+    background-color: rgba(255, 255, 255, 0.4);
+    -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+}
+.overlay__heading {
+    display: block;
+    font-size: 3rem;
+    font-family: "SF Bold";
+    margin-bottom: 40px;
 }
 
 .week {
@@ -229,4 +272,85 @@ body {
     gap: 20px;
     width: 100%;
     margin-top: 55px;
+}
+
+.create-task {
+    width: 410px;
+    background-color: var(--alternate);
+    margin-bottom: 40px;
+    border-radius: 2px;
+    box-shadow: var(--drop-shadow);
+    padding: 15px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    grid-template-areas: "cell1 cell1" "cell2 cell3";
+}
+.create-task__buttons {
+    display: flex;
+}
+.create-task__buttons * {
+    margin: 0 10px;
+}
+.create-task .cell.cell3 {
+    width: 95px;
+}
+.create-task .cell__title {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.5);
+}
+.create-task .cell__input {
+    width: 100%;
+    resize: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    font-size: 1.125rem;
+    line-height: 100%;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    outline: none;
+    overflow-wrap: anywhere;
+}
+.create-task .cell #task-title {
+    height: 28px;
+    padding-bottom: 5px;
+}
+.create-task .cell #task-description {
+    height: 44px;
+    padding-bottom: 5px;
+    white-space: pre-wrap;
+}
+.create-task .cell #task-time {
+    text-align: center;
+    font-size: 2.25rem;
+}
+.create-task .cell #task-time::placeholder {
+    font-size: 2.25rem;
+}
+.create-task .cell .week-days {
+    display: flex;
+    justify-content: space-between;
+}
+.create-task .cell .week-days__button {
+    height: 35px;
+    width: 35px;
+    font-size: 0.875rem;
+}
+.create-task .cell1 {
+    -ms-grid-row: 1;
+    -ms-grid-column: 1;
+    -ms-grid-column-span: 3;
+    grid-area: cell1;
+}
+.create-task .cell2 {
+    -ms-grid-row: 3;
+    -ms-grid-column: 1;
+    grid-area: cell2;
+}
+.create-task .cell3 {
+    -ms-grid-row: 3;
+    -ms-grid-column: 3;
+    grid-area: cell3;
 }

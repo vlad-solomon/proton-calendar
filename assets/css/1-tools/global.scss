@@ -4,8 +4,16 @@
 	color: var(--accent);
 }
 
-::selection {
-	background-color: transparent;
+// ::selection {
+// 	background-color: transparent;
+// }
+
+* {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
 }
 
 html,

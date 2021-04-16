@@ -2,14 +2,15 @@
 	display: flex;
 	align-items: center;
 	height: 40px;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 	font-size: 0.875rem;
 	cursor: pointer;
-	&:last-of-type {
-		border: none;
-	}
 	&:hover {
-		background-color: rgba(0, 0, 0, 0.05);
-		box-shadow: 20px 0 0 rgba(0, 0, 0, 0.05), -20px 0 0 rgba(0, 0, 0, 0.05);
+		// background-color: rgba(0, 0, 0, 0.05);
+		background-color: var(--task-hover);
+		box-shadow: -20px 0 0 1px var(--task-hover), 20px 0 0 1px var(--task-hover);
 	}
+}
+
+.add-task {
+	@extend .task;
 }

@@ -1,0 +1,84 @@
+.create-task {
+	width: 410px;
+	background-color: var(--alternate);
+	margin-bottom: 40px;
+	border-radius: 2px;
+	box-shadow: var(--drop-shadow);
+	padding: 15px;
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 15px;
+	grid-template-areas:
+		"cell1 cell1"
+		"cell2 cell3";
+	&__buttons {
+		display: flex;
+		* {
+			margin: 0 10px;
+		}
+	}
+	.cell {
+		&.cell3 {
+			width: 95px;
+		}
+		// border: 1px solid red;
+		&__title {
+			display: block;
+			margin-bottom: 5px;
+			font-size: 0.875rem;
+			color: rgba(0, 0, 0, 0.5);
+		}
+		&__input {
+			width: 100%;
+			resize: none;
+			border: none;
+			border-radius: 0;
+			// padding: 0 0 5px 0;
+			padding: 0;
+			font-size: 1.125rem;
+			line-height: 100%;
+			border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+			outline: none;
+			overflow-wrap: anywhere;
+		}
+
+		#task-title {
+			// min-height: 28px;
+			height: 28px;
+			padding-bottom: 5px;
+		}
+
+		#task-description {
+			// min-height: 44px;
+			height: 44px;
+			padding-bottom: 5px;
+			white-space: pre-wrap;
+			// margin-bottom: 15px;
+		}
+
+		#task-time {
+			text-align: center;
+			font-size: 2.25rem;
+			// margin-bottom: 15px;
+			&::placeholder {
+				font-size: 2.25rem;
+			}
+		}
+
+		.week-days {
+			display: flex;
+			justify-content: space-between;
+			&__button {
+				@extend .button;
+				height: 35px;
+				width: 35px;
+				font-size: 0.875rem;
+			}
+		}
+	}
+	@for $i from 1 through 3 {
+		.cell#{$i} {
+			grid-area: cell#{$i};
+		}
+	}
+}
