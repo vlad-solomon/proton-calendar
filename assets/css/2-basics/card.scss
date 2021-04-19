@@ -1,0 +1,14 @@
+.card {
+	width: 410px;
+	background-color: var(--alternate);
+	margin-bottom: 40px;
+	border-radius: 2px;
+	box-shadow: var(--drop-shadow);
+	padding: 15px;
+	&__title {
+		display: block;
+		margin-bottom: 5px;
+		font-size: 0.875rem;
+		color: rgba(0, 0, 0, 0.5);
+	}
+}

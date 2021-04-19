@@ -3,26 +3,60 @@ const clockDate = $(".clock__date");
 const calendarControls = $(".calendar-controls .button");
 const overlay = $(".overlay");
 
+let isReminding = false;
+
 let today = moment().format("DD-MM-YYYY");
 let week = moment().isoWeek();
 let currentMonday = 1;
+let remindersArray = [];
+let everyMinute = (60 - moment().seconds()) * 1000;
 
 setCurrentTime();
 setCurrentDate();
 generateWeek(currentMonday);
+getReminders();
 
 setInterval(function () {
 	setCurrentTime();
 }, 1000);
 
+setTimeout(function () {
+	checkReminders();
+	setInterval(function () {
+		checkReminders();
+	}, 60000);
+}, everyMinute);
+
 function setCurrentTime() {
 	let currentTime = moment().format("HH:mm:ss");
-
-	document.title = `Proton ∣ ${currentTime}`;
 	clockTime.text(currentTime);
 
+	document.title = isReminding ? "You've got a reminder!" : `Proton ∣ ${currentTime}`;
 	checkIfMidnight();
 }
+
+function checkReminders() {
+	for (i = 0; i < remindersArray.length; i++) {
+		if (moment().format("HH:mm") == remindersArray[i][0]) {
+			isReminding = true;
+			toggleOverlay("on");
+			if (!$(".overlay .reminder").length) {
+				overlay.append(reminderDialog);
+				$("#reminder-notification")[0].play();
+			}
+			$(".reminder .card__title").text(`Reminder for ${remindersArray[i][0]}`);
+			$(".reminder").append(`<span class="reminder__task">${remindersArray[i][1]}</span>`);
+		}
+	}
+}
+
+$(document).on("click", "#close-reminder-dialog", function () {
+	toggleOverlay("off");
+	isReminding = false;
+	getReminders();
+	$("#reminder-notification")[0].pause();
+	$("#reminder-notification")[0].currentTime = 0;
+});
 
 function setCurrentDate() {
 	let currentDate = moment().isoWeek(week).format("[Week] W, YYYY");
@@ -71,19 +105,16 @@ function checkIfMidnight() {
 	if (clockTime.text() == "00:00:00") {
 		today = moment().format("DD-MM-YYYY");
 		week = moment().isoWeek();
-		console.log(`Today is ${today}`);
-		console.log(`This week is number ${week}`);
 		setCurrentDate();
 		generateWeek(currentMonday);
+		getReminders();
 		checkIfCurrentWeek();
 	}
 }
 
-// TODO refine this function : when a task is added all days are checked
-
 function checkTasksLength() {
 	$(".day").each(function () {
-		let totalTasks = $(this).find(".task").length;
+		let totalTasks = $(this).find(".task").length - $(this).find(".task.completed").length;
 		if (totalTasks > 0) {
 			$(this).find(".day__badges").find(".day__task").text(totalTasks);
 			if ($(this).find(".day__badges").find(".day__task").length == 0) {
@@ -98,6 +129,20 @@ function checkIfCurrentWeek() {
 		$("#today").addClass("hidden");
 	} else {
 		$("#today").removeClass("hidden");
+	}
+}
+
+function getReminders() {
+	let todayWeek = $(".week").attr("data-week-id");
+	remindersArray = [];
+	if (weeks.hasOwnProperty(todayWeek)) {
+		if (weeks[todayWeek].hasOwnProperty(today)) {
+			for (let i = 0; i < weeks[todayWeek][today].length; i++) {
+				if (weeks[todayWeek][today][i].reminder == true && weeks[todayWeek][today][i].completed == false && weeks[todayWeek][today][i].time > clockTime.text()) {
+					remindersArray.push([weeks[todayWeek][today][i].time, weeks[todayWeek][today][i].title]);
+				}
+			}
+		}
 	}
 }
 
@@ -120,14 +165,14 @@ calendarControls.click(function () {
 			generateWeek(currentMonday);
 			break;
 	}
-	// setCurrentDate();
 	checkIfCurrentWeek();
-	// checkTasks();
 });
 
 $(document).on("mouseenter", ".day", function () {
-	$(this).find(".day__badges").prepend(`<span class="day__weather">Check weather</span>`);
-	$(this).find(".day__tasks-wrapper").append(addTaskButton);
+	if (!$(".add-task").length) {
+		$(this).find(".day__badges").prepend(`<span class="day__weather">Check weather</span>`);
+		$(this).find(".day__tasks-wrapper").append(addTaskButton);
+	}
 });
 $(document).on("mouseleave", ".day", function () {
 	$(".day__weather").remove();
@@ -156,7 +201,7 @@ $(document).on("click", ".day__tasks-wrapper > *", function () {
 	overlay.append(createTaskDialog);
 
 	autosize($("textarea"));
-	const taskTimeCleave = new Cleave("#task-time", {
+	taskTimeCleave = new Cleave("#task-time", {
 		time: true,
 		timePattern: ["h", "m"],
 	});
@@ -171,7 +216,7 @@ $(document).on("click", ".add-task", function () {
 });
 
 let isEditingTask = false;
-let selectedTask, selectedTaskObject;
+let selectedTaskId, selectedTaskObject;
 
 $(document).on("click", ".task", function () {
 	isEditingTask = true;
@@ -185,8 +230,24 @@ $(document).on("click", ".task", function () {
 	$("#task-description").val(selectedTaskObject.description);
 	$("#task-time").val(selectedTaskObject.time);
 
+	if (selectedTaskObject.reminder == true) {
+		$(".button--reminder").removeClass("button--off").text("ON").attr("data-reminder", "true");
+	}
+	if (selectedTaskObject.time != "") {
+		$(".reminder-wrap").removeClass("hidden");
+	}
+
 	$("#task-title").css("height", `${$("#task-title")[0].scrollHeight + 1}px`);
 	$("#task-description").css("height", `${$("#task-description")[0].scrollHeight + 1}px`);
+});
+
+$(document).on("click", ".button--reminder", function () {
+	$(this).toggleClass("button--off");
+	if ($(this).hasClass("button--off")) {
+		$(this).text("OFF").attr("data-reminder", "false");
+	} else {
+		$(this).text("ON").attr("data-reminder", "true");
+	}
 });
 
 $(document).on("click", "#accept", function () {
@@ -196,6 +257,8 @@ $(document).on("click", "#accept", function () {
 		title: $("#task-title").val(),
 		description: $("#task-description").val(),
 		time: $("#task-time").val(),
+		completed: false,
+		reminder: JSON.parse($(".button--reminder").attr("data-reminder")),
 	};
 	if (weeks[selectedWeek] == undefined) {
 		weeks[selectedWeek] = {};
@@ -207,12 +270,14 @@ $(document).on("click", "#accept", function () {
 		selectedTaskObject.title = $("#task-title").val();
 		selectedTaskObject.description = $("#task-description").val();
 		selectedTaskObject.time = $("#task-time").val();
+		selectedTaskObject.reminder = JSON.parse($(".button--reminder").attr("data-reminder"));
 		isEditingTask = false;
 	} else {
 		weeks[selectedWeek][selectedDay].push(taskObject);
 	}
 	generateWeek(currentMonday);
 	toggleOverlay("off");
+	getReminders();
 });
 
 $(document).on("click", "#cancel", function () {
@@ -220,23 +285,30 @@ $(document).on("click", "#cancel", function () {
 	isEditingTask = false;
 });
 
-// * this works for the simple createTaskComponent
-// todo add the reminder and repeat logic later
-
-// ! refactor this shitty if
 $(document).on("keyup keydown click", ".create-task", function () {
-	if (!isEditingTask && $("#task-title").val().length > 0) {
+	if (!isEditingTask && $("#task-title").val().trim().length > 0) {
 		$("#accept").removeClass("hidden");
 	} else {
 		$("#accept").addClass("hidden");
 	}
 	if (isEditingTask) {
-		if (selectedTaskObject.title != $("#task-title").val() || selectedTaskObject.description != $("#task-description").val() || selectedTaskObject.time != $("#task-time").val()) {
+		if (
+			selectedTaskObject.title != $("#task-title").val() ||
+			selectedTaskObject.description != $("#task-description").val() ||
+			selectedTaskObject.time != $("#task-time").val() ||
+			selectedTaskObject.reminder != JSON.parse($(".button--reminder").attr("data-reminder"))
+		) {
 			$("#accept").removeClass("hidden");
 		}
 		if ($("#task-title").val().length == 0) {
 			$("#accept").addClass("hidden");
 		}
+	}
+	if ($("#task-time").val().length > 0) {
+		$(".reminder-wrap").removeClass("hidden");
+	} else {
+		$(".reminder-wrap").addClass("hidden");
+		$(".button--reminder").text("OFF").attr("data-reminder", "false").addClass("button--off");
 	}
 });
 
@@ -258,6 +330,36 @@ $(document).on("blur", "#task-time", function () {
 	}
 });
 
+$(document).on("mouseenter", ".task", function () {
+	$(this).append(taskBadges);
+});
+
+$(document).on("mouseleave", ".task", function () {
+	$(this).find(".task__badges").remove();
+});
+
+$(document).on("click", ".task__badges img", function (event) {
+	event.stopPropagation();
+	let clickedTaskWeek = $(".week").attr("data-week-id");
+	let clickedTaskDay = $(this).parents().eq(4).attr("data-day-id");
+	let clickedTaskId = $(this).parents().eq(1).attr("data-uuid");
+	let clickedTaskObject = weeks[clickedTaskWeek][clickedTaskDay].find((task) => task.uuid === clickedTaskId);
+	let clickedTaskObjectIndex = weeks[clickedTaskWeek][clickedTaskDay].findIndex((task) => task.uuid === clickedTaskId);
+	switch ($(this).attr("id")) {
+		case "complete-task":
+			clickedTaskObject.completed = !clickedTaskObject.completed;
+			break;
+		case "remove-task":
+			weeks[clickedTaskWeek][clickedTaskDay].splice(clickedTaskObjectIndex, 1);
+			if (weeks[clickedTaskWeek][clickedTaskDay].length == 0) {
+				delete weeks[clickedTaskWeek][clickedTaskDay];
+			}
+			break;
+	}
+	generateWeek(currentMonday);
+	getReminders();
+});
+
 function checkTasks() {
 	let focusedWeek = $(".week").attr("data-week-id");
 	let focusedWeekDays = Object.keys(weeks[focusedWeek]);
@@ -266,6 +368,7 @@ function checkTasks() {
 			let taskText = weeks[focusedWeek][focusedWeekDays[i]][j].title;
 			let taskTime = weeks[focusedWeek][focusedWeekDays[i]][j].time;
 			let uniqueId = weeks[focusedWeek][focusedWeekDays[i]][j].uuid;
+			let taskStatus = weeks[focusedWeek][focusedWeekDays[i]][j].completed;
 
 			taskTime = taskTime != "" ? ` @ ${taskTime}` : "";
 
@@ -274,20 +377,15 @@ function checkTasks() {
 			task.attr("data-uuid", uniqueId);
 			task.text(`${taskText}${taskTime}`);
 
+			if (taskStatus == true) {
+				task.addClass("completed");
+			}
+
 			$(`.day[data-day-id="${focusedWeekDays[i]}"]`).find(".day__tasks-wrapper").append(task);
 		}
 	}
 	checkTasksLength();
 }
-
-// $(".button--reminder").click(function () {
-// 	$(this).toggleClass("button--off");
-// 	if ($(this).hasClass("button--off")) {
-// 		$(this).text("OFF");
-// 	} else {
-// 		$(this).text("ON");
-// 	}
-// });
 
 // $(".week-days__button").click(function () {
 // 	$(this).toggleClass("button--off");

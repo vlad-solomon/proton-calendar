@@ -196,6 +196,7 @@ body {
 .task, .add-task {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     height: 40px;
     font-size: 0.875rem;
     cursor: pointer;
@@ -203,6 +204,19 @@ body {
 .task:hover, .add-task:hover {
     background-color: var(--task-hover);
     box-shadow: -20px 0 0 1px var(--task-hover), 20px 0 0 1px var(--task-hover);
+}
+.task.completed, .completed.add-task {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+.task__badges {
+    display: flex;
+}
+.task__badges img:first-of-type {
+    margin-right: 5px;
+}
+.task__badges img:hover {
+    transform: scale(1.25);
 }
 
 .button, .create-task .cell .week-days__button {
@@ -232,6 +246,21 @@ body {
     color: rgba(0, 0, 0, 0.5) !important;
     border: 1px solid rgba(0, 0, 0, 0.05);
     background: none !important;
+}
+
+.card {
+    width: 410px;
+    background-color: var(--alternate);
+    margin-bottom: 40px;
+    border-radius: 2px;
+    box-shadow: var(--drop-shadow);
+    padding: 15px;
+}
+.card__title, .create-task .cell__title {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.5);
 }
 
 .calendar-controls {
@@ -266,6 +295,18 @@ body {
     margin-bottom: 40px;
 }
 
+.reminder {
+    padding-bottom: 5px;
+}
+.reminder__task {
+    display: flex;
+    align-items: center;
+    height: 40px;
+}
+.reminder__task:not(:last-of-type) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
 .week {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -275,12 +316,6 @@ body {
 }
 
 .create-task {
-    width: 410px;
-    background-color: var(--alternate);
-    margin-bottom: 40px;
-    border-radius: 2px;
-    box-shadow: var(--drop-shadow);
-    padding: 15px;
     display: grid;
     grid-template-columns: 1fr;
     gap: 15px;
@@ -295,13 +330,8 @@ body {
 .create-task .cell.cell3 {
     width: 95px;
 }
-.create-task .cell__title {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 0.875rem;
-    color: rgba(0, 0, 0, 0.5);
-}
 .create-task .cell__input {
+    display: block;
     width: 100%;
     resize: none;
     border: none;
@@ -321,10 +351,12 @@ body {
     height: 44px;
     padding-bottom: 5px;
     white-space: pre-wrap;
+    margin-bottom: 15px;
 }
 .create-task .cell #task-time {
     text-align: center;
     font-size: 2.25rem;
+    margin-bottom: 15px;
 }
 .create-task .cell #task-time::placeholder {
     font-size: 2.25rem;

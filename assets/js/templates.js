@@ -10,16 +10,31 @@ const defaultTask = `
 	</div>
 `;
 
-const createTaskDialogFinal = `
+const taskBadges = `
+	<div class="task__badges">
+		<img src="assets/img/complete.svg" id="complete-task" alt="complete" />
+		<img src="assets/img/delete.svg" id="remove-task" alt="delete" />
+	</div>
+`;
+
+const reminderDialog = `
+	<div class="reminder card">
+			<span class="card__title"></span>
+		</div>
+	</div>
+	<div class="button" id="close-reminder-dialog"><img src="assets/img/cancel.svg" alt="close-reminder"/></div>
+`;
+
+const createTaskDialog = `
 	<span class="overlay__heading"></span>
-	<div class="create-task">
+	<div class="create-task card">
 		<div class="cell cell1">
 			<span class="cell__title">Title</span>
-			<div class="cell__input" id="task-title" role="textbox" contenteditable></div>
+			<textarea class="cell__input" id="task-title" spellcheck="false"></textarea>
 		</div>
 		<div class="cell cell2">
 			<span class="cell__title">Description</span>
-			<div class="cell__input" id="task-description" role="textbox" contenteditable></div>
+			<textarea class="cell__input" id="task-description" spellcheck="false"></textarea>
 			<span class="cell__title">Repeat</span>
 			<div class="week-days">
 				<div class="week-days__button button--off">M</div>
@@ -33,9 +48,11 @@ const createTaskDialogFinal = `
 		</div>
 		<div class="cell cell3">
 			<span class="cell__title">Time</span>
-			<input class="cell__input" placeholder="00:00" id="task-time"></input>
-			<span class="cell__title">Reminder</span>
-			<div class="button button--reminder button--off">off</div>
+			<input class="cell__input" placeholder="00:00" id="task-time" autocomplete="off"></input>
+			<div class="reminder-wrap hidden">
+				<span class="cell__title">Reminder</span>
+				<div class="button button--reminder button--off" data-reminder="false">off</div>
+			</div>
 		</div>
 	</div>
 	<div class="create-task__buttons">
@@ -44,7 +61,7 @@ const createTaskDialogFinal = `
 	</div>
 `;
 
-const createTaskDialog = `
+const createTaskDialogSimple = `
 	<span class="overlay__heading"></span>
 	<div class="create-task">
 		<div class="cell cell1">

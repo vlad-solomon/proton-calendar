@@ -1,0 +1,11 @@
+.reminder {
+	padding-bottom: 5px;
+	&__task {
+		display: flex;
+		align-items: center;
+		height: 40px;
+		&:not(:last-of-type) {
+			border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+		}
+	}
+}

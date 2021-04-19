@@ -1,6 +1,7 @@
 .task {
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	height: 40px;
 	font-size: 0.875rem;
 	cursor: pointer;
@@ -8,6 +9,21 @@
 		// background-color: rgba(0, 0, 0, 0.05);
 		background-color: var(--task-hover);
 		box-shadow: -20px 0 0 1px var(--task-hover), 20px 0 0 1px var(--task-hover);
+	}
+	&.completed {
+		text-decoration: line-through;
+		opacity: 0.5;
+	}
+	&__badges {
+		display: flex;
+		img {
+			&:first-of-type {
+				margin-right: 5px;
+			}
+			&:hover {
+				transform: scale(1.25);
+			}
+		}
 	}
 }
 
