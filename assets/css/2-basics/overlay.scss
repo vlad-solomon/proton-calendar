@@ -17,4 +17,11 @@
 		font-family: "SF Bold";
 		margin-bottom: 40px;
 	}
+	&__warning {
+		@extend .card;
+		font-size: 0.875rem;
+		line-height: 125%;
+		color: rgba(0, 0, 0, 0.4);
+		margin-bottom: 25px;
+	}
 }

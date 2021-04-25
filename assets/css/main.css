@@ -248,7 +248,7 @@ body {
     background: none !important;
 }
 
-.card {
+.card, .overlay__warning {
     width: 410px;
     background-color: var(--alternate);
     margin-bottom: 40px;
@@ -293,6 +293,12 @@ body {
     font-size: 3rem;
     font-family: "SF Bold";
     margin-bottom: 40px;
+}
+.overlay__warning {
+    font-size: 0.875rem;
+    line-height: 125%;
+    color: rgba(0, 0, 0, 0.4);
+    margin-bottom: 25px;
 }
 
 .reminder {

@@ -36,7 +36,7 @@ const createTaskDialog = `
 			<span class="cell__title">Description</span>
 			<textarea class="cell__input" id="task-description" spellcheck="false"></textarea>
 			<span class="cell__title">Repeat</span>
-			<div class="week-days">
+			<div class="week-days" data-repeats="[]">
 				<div class="week-days__button button--off">M</div>
 				<div class="week-days__button button--off">T</div>
 				<div class="week-days__button button--off">W</div>
@@ -57,28 +57,6 @@ const createTaskDialog = `
 	</div>
 	<div class="create-task__buttons">
 		<div class="button" id="cancel"><img src="assets/img/cancel.svg" alt="cancel"/></div>
-		<div class="button hidden" id="accept"><img src="assets/img/accept.svg" alt="accept" /></div>
-	</div>
-`;
-
-const createTaskDialogSimple = `
-	<span class="overlay__heading"></span>
-	<div class="create-task">
-		<div class="cell cell1">
-			<span class="cell__title">Title</span>
-			<textarea class="cell__input" id="task-title" spellcheck="false"></textarea>
-		</div>
-		<div class="cell cell2">
-			<span class="cell__title">Description</span>
-			<textarea class="cell__input" id="task-description" spellcheck="false"></textarea>
-		</div>
-		<div class="cell cell3">
-			<span class="cell__title">Time</span>
-			<input class="cell__input" placeholder="00:00" id="task-time" autocomplete="off" />
-		</div>
-	</div>
-	<div class="create-task__buttons">
-		<div class="button" id="cancel"><img src="assets/img/cancel.svg" alt="cancel" /></div>
 		<div class="button hidden" id="accept"><img src="assets/img/accept.svg" alt="accept" /></div>
 	</div>
 `;

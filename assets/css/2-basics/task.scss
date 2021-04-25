@@ -6,7 +6,6 @@
 	font-size: 0.875rem;
 	cursor: pointer;
 	&:hover {
-		// background-color: rgba(0, 0, 0, 0.05);
 		background-color: var(--task-hover);
 		box-shadow: -20px 0 0 1px var(--task-hover), 20px 0 0 1px var(--task-hover);
 	}

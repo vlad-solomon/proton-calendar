@@ -5,6 +5,7 @@ const overlay = $(".overlay");
 
 let isReminding = false;
 
+let todayIndex;
 let today = moment().format("DD-MM-YYYY");
 let week = moment().isoWeek();
 let currentMonday = 1;
@@ -64,6 +65,29 @@ function setCurrentDate() {
 	clockDate.text(currentDate);
 }
 
+function checkRepeats() {
+	for (i = 0; i < weeks.repeatedTasks.length; i++) {
+		for (j = 0; j < weeks.repeatedTasks[i].repeats.length; j++) {
+			let repeatedTaskTime = weeks.repeatedTasks[i].time;
+			repeatedTaskTime = repeatedTaskTime != "" ? ` @ ${repeatedTaskTime}` : "";
+
+			const repeatedTask = $("<div>");
+			repeatedTask.addClass("task repeated");
+			repeatedTask.text(`↺ ${weeks.repeatedTasks[i].title} ${repeatedTaskTime}`);
+			// repeatedTask.append(`<img src="assets/img/repeat.svg">`);
+			repeatedTask.attr("data-origin-week", weeks.repeatedTasks[i].originWeek);
+			repeatedTask.attr("data-origin-day", weeks.repeatedTasks[i].originDay);
+			repeatedTask.attr("data-origin-id", weeks.repeatedTasks[i].uuid);
+
+			if ($(".week").attr("data-week-id") >= repeatedTask.attr("data-origin-week")) {
+				if ($(".day").eq(weeks.repeatedTasks[i].repeats[j]).attr("data-day-id") != repeatedTask.attr("data-origin-day")) {
+					$(".day").eq(weeks.repeatedTasks[i].repeats[j]).find(".day__tasks-wrapper").append(repeatedTask);
+				}
+			}
+		}
+	}
+}
+
 function generateWeek(monday) {
 	let weekId = $(".week").attr("data-week-id");
 	$(".week").children().remove();
@@ -92,18 +116,32 @@ function generateWeek(monday) {
 	if (weeks.hasOwnProperty(weekId)) {
 		checkTasks();
 	}
+
+	checkRepeats();
 	checkToday();
+
+	for (i = 0; i < weeks.repeatedTasks.length; i++) {
+		for (j = 0; j < weeks.repeatedTasks[i].deletedArray.length; j++) {
+			$(`.day[data-day-id="${weeks.repeatedTasks[i].deletedArray[j]}"]`).find(`.task[data-origin-id="${weeks.repeatedTasks[i].uuid}"]`).remove();
+		}
+		for (k = 0; k < weeks.repeatedTasks[i].completedArray.length; k++) {
+			$(`.day[data-day-id="${weeks.repeatedTasks[i].completedArray[k]}"]`).find(`.task[data-origin-id="${weeks.repeatedTasks[i].uuid}"]`).addClass("completed");
+		}
+	}
+	checkTasksLength();
 }
 
 function checkToday() {
 	if (!$(`.day[data-day-id="${today}"]`).find(".day__badges").children(".day__today").length) {
 		$(`.day[data-day-id="${today}"]`).find(".day__badges").prepend(`<span class="day__today">Today</span>`);
 	}
+	todayIndex = $(".day__today").parents().eq(2).index();
 }
 
 function checkIfMidnight() {
 	if (clockTime.text() == "00:00:00") {
 		today = moment().format("DD-MM-YYYY");
+		todayIndex = $(".day__today").parents().eq(2).index();
 		week = moment().isoWeek();
 		setCurrentDate();
 		generateWeek(currentMonday);
@@ -141,6 +179,13 @@ function getReminders() {
 				if (weeks[todayWeek][today][i].reminder == true && weeks[todayWeek][today][i].completed == false && weeks[todayWeek][today][i].time > clockTime.text()) {
 					remindersArray.push([weeks[todayWeek][today][i].time, weeks[todayWeek][today][i].title]);
 				}
+			}
+		}
+	}
+	if (weeks.repeatedTasks.length > 0) {
+		for (j = 0; j < weeks.repeatedTasks.length; j++) {
+			if (weeks.repeatedTasks[j].repeats.includes(todayIndex) && weeks.repeatedTasks[j].time > clockTime.text()) {
+				remindersArray.push([weeks.repeatedTasks[j].time, weeks.repeatedTasks[j].title]);
 			}
 		}
 	}
@@ -223,7 +268,26 @@ $(document).on("click", ".task", function () {
 	selectedWeek = $(".week").attr("data-week-id");
 	selectedDay = $(this).parents().eq(2).attr("data-day-id");
 	selectedTaskId = $(this).attr("data-uuid");
-	selectedTaskObject = weeks[selectedWeek][selectedDay].find((task) => task.uuid === selectedTaskId);
+	if (!$(this).hasClass("repeated")) {
+		selectedTaskObject = weeks[selectedWeek][selectedDay].find((task) => task.uuid === selectedTaskId);
+	} else {
+		let originWeek = $(this).attr("data-origin-week");
+		let originDay = $(this).attr("data-origin-day");
+		let originId = $(this).attr("data-origin-id");
+
+		selectedTaskObject = weeks[originWeek][originDay].find((task) => task.uuid === originId);
+		humazinedDay = `Repeated task`;
+
+		const repeatWarning = `
+			<div class="overlay__warning">
+				<p>This is a repeated task from ${originDay.replace(/-/g, ".")}.</p>
+				<p>All the changes you make to this task will modify the original one.</p>
+			</div>
+		`;
+
+		$(".overlay__heading").after(repeatWarning);
+		$("#accept").addClass("repeated");
+	}
 
 	$(".overlay__heading").text(humazinedDay);
 	$("#task-title").val(selectedTaskObject.title);
@@ -232,6 +296,13 @@ $(document).on("click", ".task", function () {
 
 	if (selectedTaskObject.reminder == true) {
 		$(".button--reminder").removeClass("button--off").text("ON").attr("data-reminder", "true");
+	}
+	if (selectedTaskObject.repeats.length > 0) {
+		$(".week-days").attr("data-repeats", JSON.stringify(selectedTaskObject.repeats));
+		repeatDays = JSON.parse($(".week-days").attr("data-repeats"));
+		for (i = 0; i < selectedTaskObject.repeats.length; i++) {
+			$(".week-days__button").eq(selectedTaskObject.repeats[i]).removeClass("button--off");
+		}
 	}
 	if (selectedTaskObject.time != "") {
 		$(".reminder-wrap").removeClass("hidden");
@@ -250,6 +321,23 @@ $(document).on("click", ".button--reminder", function () {
 	}
 });
 
+let repeatDays = [];
+
+$(document).on("click", ".week-days__button", function () {
+	if ($(this).hasClass("button--off")) {
+		$(this).removeClass("button--off");
+		repeatDays.push($(this).index());
+	} else {
+		$(this).addClass("button--off");
+		repeatDays.splice(
+			repeatDays.findIndex((index) => index === $(this).index()),
+			1
+		);
+	}
+	repeatDays = repeatDays.sort();
+	$(".week-days").attr("data-repeats", JSON.stringify(repeatDays));
+});
+
 $(document).on("click", "#accept", function () {
 	let uniqueId = uuid.v4();
 	const taskObject = {
@@ -259,11 +347,16 @@ $(document).on("click", "#accept", function () {
 		time: $("#task-time").val(),
 		completed: false,
 		reminder: JSON.parse($(".button--reminder").attr("data-reminder")),
+		repeats: JSON.parse($(".week-days").attr("data-repeats")),
+		originWeek: selectedWeek,
+		originDay: selectedDay,
+		deletedArray: [],
+		completedArray: [],
 	};
 	if (weeks[selectedWeek] == undefined) {
 		weeks[selectedWeek] = {};
 	}
-	if (weeks[selectedWeek][selectedDay] == undefined) {
+	if (weeks[selectedWeek][selectedDay] == undefined && !$(this).hasClass("repeated")) {
 		weeks[selectedWeek][selectedDay] = [];
 	}
 	if (isEditingTask) {
@@ -271,16 +364,36 @@ $(document).on("click", "#accept", function () {
 		selectedTaskObject.description = $("#task-description").val();
 		selectedTaskObject.time = $("#task-time").val();
 		selectedTaskObject.reminder = JSON.parse($(".button--reminder").attr("data-reminder"));
+		selectedTaskObject.repeats = JSON.parse($(".week-days").attr("data-repeats"));
+		if (selectedTaskObject.repeats.length > 0) {
+			weeks.repeatedTasks.splice(
+				weeks.repeatedTasks.findIndex((index) => index.uuid === selectedTaskObject.uuid),
+				1,
+				selectedTaskObject
+			);
+		}
+		if (selectedTaskObject.repeats.length == 0) {
+			weeks.repeatedTasks.splice(
+				weeks.repeatedTasks.findIndex((index) => index.uuid === selectedTaskObject.uuid),
+				1
+			);
+		}
 		isEditingTask = false;
 	} else {
 		weeks[selectedWeek][selectedDay].push(taskObject);
+		if (taskObject.repeats.length > 0) {
+			weeks.repeatedTasks.push(taskObject);
+		}
 	}
+
+	repeatDays = [];
 	generateWeek(currentMonday);
 	toggleOverlay("off");
 	getReminders();
 });
 
 $(document).on("click", "#cancel", function () {
+	repeatDays = [];
 	toggleOverlay("off");
 	isEditingTask = false;
 });
@@ -296,7 +409,8 @@ $(document).on("keyup keydown click", ".create-task", function () {
 			selectedTaskObject.title != $("#task-title").val() ||
 			selectedTaskObject.description != $("#task-description").val() ||
 			selectedTaskObject.time != $("#task-time").val() ||
-			selectedTaskObject.reminder != JSON.parse($(".button--reminder").attr("data-reminder"))
+			selectedTaskObject.reminder != JSON.parse($(".button--reminder").attr("data-reminder")) ||
+			JSON.stringify(selectedTaskObject.repeats) != $(".week-days").attr("data-repeats")
 		) {
 			$("#accept").removeClass("hidden");
 		}
@@ -342,20 +456,45 @@ $(document).on("click", ".task__badges img", function (event) {
 	event.stopPropagation();
 	let clickedTaskWeek = $(".week").attr("data-week-id");
 	let clickedTaskDay = $(this).parents().eq(4).attr("data-day-id");
-	let clickedTaskId = $(this).parents().eq(1).attr("data-uuid");
-	let clickedTaskObject = weeks[clickedTaskWeek][clickedTaskDay].find((task) => task.uuid === clickedTaskId);
-	let clickedTaskObjectIndex = weeks[clickedTaskWeek][clickedTaskDay].findIndex((task) => task.uuid === clickedTaskId);
-	switch ($(this).attr("id")) {
-		case "complete-task":
-			clickedTaskObject.completed = !clickedTaskObject.completed;
-			break;
-		case "remove-task":
-			weeks[clickedTaskWeek][clickedTaskDay].splice(clickedTaskObjectIndex, 1);
-			if (weeks[clickedTaskWeek][clickedTaskDay].length == 0) {
-				delete weeks[clickedTaskWeek][clickedTaskDay];
-			}
-			break;
+	if (!$(this).parents().eq(1).hasClass("repeated")) {
+		let clickedTaskId = $(this).parents().eq(1).attr("data-uuid");
+		let clickedTaskObject = weeks[clickedTaskWeek][clickedTaskDay].find((task) => task.uuid === clickedTaskId);
+		let clickedTaskObjectIndex = weeks[clickedTaskWeek][clickedTaskDay].findIndex((task) => task.uuid === clickedTaskId);
+		switch ($(this).attr("id")) {
+			case "complete-task":
+				clickedTaskObject.completed = !clickedTaskObject.completed;
+				break;
+			case "remove-task":
+				weeks[clickedTaskWeek][clickedTaskDay].splice(clickedTaskObjectIndex, 1);
+				weeks.repeatedTasks.splice(
+					weeks.repeatedTasks.findIndex((task) => task.uuid == clickedTaskId),
+					1
+				);
+				if (weeks[clickedTaskWeek][clickedTaskDay].length == 0) {
+					delete weeks[clickedTaskWeek][clickedTaskDay];
+				}
+				break;
+		}
+	} else {
+		let originId = $(this).parents().eq(1).attr("data-origin-id");
+		let index = weeks.repeatedTasks.findIndex((task) => task.uuid === originId);
+		switch ($(this).attr("id")) {
+			case "complete-task":
+				if (!weeks.repeatedTasks[index].completedArray.includes(clickedTaskDay)) {
+					weeks.repeatedTasks[index].completedArray.push(clickedTaskDay);
+				} else {
+					weeks.repeatedTasks[index].completedArray.splice(
+						weeks.repeatedTasks[index].completedArray.findIndex((task) => task === clickedTaskDay),
+						1
+					);
+				}
+				break;
+			case "remove-task":
+				weeks.repeatedTasks[index].deletedArray.push(clickedTaskDay);
+				break;
+		}
 	}
+
 	generateWeek(currentMonday);
 	getReminders();
 });
@@ -384,9 +523,4 @@ function checkTasks() {
 			$(`.day[data-day-id="${focusedWeekDays[i]}"]`).find(".day__tasks-wrapper").append(task);
 		}
 	}
-	checkTasksLength();
 }
-
-// $(".week-days__button").click(function () {
-// 	$(this).toggleClass("button--off");
-// });
