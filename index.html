@@ -11,12 +11,13 @@
 		<div class="overlay hidden"></div>
 		<div class="page-content">
 			<div class="clock">
-				<span class="clock__greeting">Good morning, User!</span>
-				<span class="clock__time">HH:MM:SS</span>
-				<span class="clock__date">Week, Year</span>
+				<span class="clock__greeting"></span>
+				<span class="clock__time"></span>
+				<span class="clock__date"></span>
 			</div>
 			<div class="calendar-controls">
 				<div id="today" class="button button--text hidden">Jump to today</div>
+				<div id="share" class="button button--alt"><img src="assets/img/share.svg" alt="share-week" /></div>
 				<div id="prev" class="button"><img src="assets/img/prev-week.svg" alt="prev-week" /></div>
 				<div id="next" class="button"><img src="assets/img/next-week.svg" alt="next-week" /></div>
 			</div>
@@ -45,6 +46,8 @@
 			integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
 			crossorigin="anonymous"
 		></script>
+		<script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
+
 		<script src="assets/js/weeks.js"></script>
 		<script src="assets/js/templates.js"></script>
 

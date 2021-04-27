@@ -1,0 +1,33 @@
+.share {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	&__options {
+		display: flex;
+		padding: 8px;
+		border-radius: 50px;
+		background-color: var(--alternate);
+		box-shadow: var(--drop-shadow);
+		.button {
+			font-size: 0.875rem;
+			height: 35px;
+			width: 35px;
+			margin: 0 3px;
+		}
+	}
+	&__calendar {
+		width: 60vw;
+		min-height: 275px;
+		margin: 20px 0 40px 0;
+		canvas {
+			width: 100% !important;
+			height: 100% !important;
+		}
+	}
+	&__buttons {
+		display: flex;
+		.button {
+			margin: 0 10px;
+		}
+	}
+}

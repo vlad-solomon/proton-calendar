@@ -206,8 +206,27 @@ body {
     box-shadow: -20px 0 0 1px var(--task-hover), 20px 0 0 1px var(--task-hover);
 }
 .task.completed, .completed.add-task {
-    text-decoration: line-through;
     opacity: 0.5;
+}
+.task.completed .task__text span, .completed.add-task .task__text span {
+    position: relative;
+}
+.task.completed .task__text span::before, .completed.add-task .task__text span::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    border-bottom: 1px solid var(--accent);
+}
+.task__text {
+    display: flex;
+    align-items: center;
+}
+.task__text img {
+    height: 15px;
+    margin-right: 5px;
+    opacity: 0.4;
 }
 .task__badges {
     display: flex;
@@ -235,6 +254,10 @@ body {
     font-family: "SF Bold";
     padding: 0 30px;
     width: auto;
+}
+.button--alt {
+    background: transparent;
+    border: 1px solid var(--accent);
 }
 .button--reminder {
     height: 35px;
@@ -391,4 +414,38 @@ body {
     -ms-grid-row: 3;
     -ms-grid-column: 3;
     grid-area: cell3;
+}
+
+.share {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+.share__options {
+    display: flex;
+    padding: 8px;
+    border-radius: 50px;
+    background-color: var(--alternate);
+    box-shadow: var(--drop-shadow);
+}
+.share__options .button, .share__options .create-task .cell .week-days__button, .create-task .cell .share__options .week-days__button {
+    font-size: 0.875rem;
+    height: 35px;
+    width: 35px;
+    margin: 0 3px;
+}
+.share__calendar {
+    width: 60vw;
+    min-height: 275px;
+    margin: 20px 0 40px 0;
+}
+.share__calendar canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+.share__buttons {
+    display: flex;
+}
+.share__buttons .button, .share__buttons .create-task .cell .week-days__button, .create-task .cell .share__buttons .week-days__button {
+    margin: 0 10px;
 }

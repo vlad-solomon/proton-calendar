@@ -14,6 +14,10 @@
 		padding: 0 30px;
 		width: auto;
 	}
+	&--alt {
+		background: transparent;
+		border: 1px solid var(--accent);
+	}
 	&--reminder {
 		height: 35px;
 		width: 100%;

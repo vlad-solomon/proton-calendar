@@ -60,3 +60,23 @@ const createTaskDialog = `
 		<div class="button hidden" id="accept"><img src="assets/img/accept.svg" alt="accept" /></div>
 	</div>
 `;
+
+const shareDialog = `
+	<span class="overlay__heading">Share your week</span>
+	<div class="share">
+		<div class="share__options">
+			<div class="button">M</div>
+			<div class="button">T</div>
+			<div class="button">W</div>
+			<div class="button">T</div>
+			<div class="button">F</div>
+			<div class="button">S</div>
+			<div class="button">S</div>
+		</div>
+		<div class="card share__calendar"></div>
+		<div class="share__buttons">
+			<div class="button" id="cancel-share"><img src="assets/img/cancel.svg" alt="cancel" /></div>
+			<div class="button hidden" id="download"><img src="assets/img/download.svg" alt="download" /></div>
+		</div>
+	</div>
+`;

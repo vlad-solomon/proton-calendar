@@ -69,16 +69,18 @@ function checkRepeats() {
 	for (i = 0; i < weeks.repeatedTasks.length; i++) {
 		for (j = 0; j < weeks.repeatedTasks[i].repeats.length; j++) {
 			let repeatedTaskTime = weeks.repeatedTasks[i].time;
-			repeatedTaskTime = repeatedTaskTime != "" ? ` @ ${repeatedTaskTime}` : "";
+			repeatedTaskTime = repeatedTaskTime != "" ? repeatedTaskTime : "";
 
 			const repeatedTask = $("<div>");
 			repeatedTask.addClass("task repeated");
-			repeatedTask.text(`↺ ${weeks.repeatedTasks[i].title} ${repeatedTaskTime}`);
-			// repeatedTask.append(`<img src="assets/img/repeat.svg">`);
 			repeatedTask.attr("data-origin-week", weeks.repeatedTasks[i].originWeek);
 			repeatedTask.attr("data-origin-day", weeks.repeatedTasks[i].originDay);
 			repeatedTask.attr("data-origin-id", weeks.repeatedTasks[i].uuid);
+			repeatedTask.append(
+				`<div class="task__text"><img src="assets/img/repeat.svg" title="This is a repeated task!"><span>${weeks.repeatedTasks[i].title}</span></div><div class="task__time">${repeatedTaskTime}</div>`
+			);
 
+			// ? stop tasks from repeating behind the day they were created with an && day id > repeatedTask.attr(data-origin-day)
 			if ($(".week").attr("data-week-id") >= repeatedTask.attr("data-origin-week")) {
 				if ($(".day").eq(weeks.repeatedTasks[i].repeats[j]).attr("data-day-id") != repeatedTask.attr("data-origin-day")) {
 					$(".day").eq(weeks.repeatedTasks[i].repeats[j]).find(".day__tasks-wrapper").append(repeatedTask);
@@ -133,7 +135,7 @@ function generateWeek(monday) {
 
 function checkToday() {
 	if (!$(`.day[data-day-id="${today}"]`).find(".day__badges").children(".day__today").length) {
-		$(`.day[data-day-id="${today}"]`).find(".day__badges").prepend(`<span class="day__today">Today</span>`);
+		$(`.day[data-day-id="${today}"]`).find(".day__badges").prepend(`<span class="day__today" data-html2canvas-ignore>Today</span>`);
 	}
 	todayIndex = $(".day__today").parents().eq(2).index();
 }
@@ -203,6 +205,16 @@ calendarControls.click(function () {
 			setCurrentDate();
 			generateWeek((currentMonday -= 7));
 			break;
+		case "share":
+			toggleOverlay("on");
+			$(".day").css({
+				"box-shadow": "unset",
+				border: "2px solid #f2f2f2",
+			});
+			$(".week").css("padding", "10px");
+			overlay.append(shareDialog);
+			captureWeek();
+			break;
 		default:
 			week = moment().isoWeek();
 			currentMonday = 1;
@@ -211,6 +223,57 @@ calendarControls.click(function () {
 			break;
 	}
 	checkIfCurrentWeek();
+});
+
+let image;
+
+function captureWeek() {
+	$("canvas").remove();
+	html2canvas(document.querySelector(".week"), {
+		scale: 1,
+	}).then((canvas) => {
+		document.querySelector(".share__calendar").appendChild(canvas);
+		image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+		$("#download").removeClass("hidden");
+		$(".share__options .button").removeAttr("style");
+		if ($(".share__options").find(".button:not('.button--off')").length == 1) {
+			$(".share__options").find(".button:not('.button--off')").css("pointer-events", "none");
+		}
+	});
+}
+
+$(document).on("click", "#download", function () {
+	let sharedWeek = $(".week").attr("data-week-id");
+	let link = document.createElement("a");
+	if (typeof link.download === "string") {
+		link.href = image;
+		link.download = `proton-${sharedWeek}.png`;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	} else {
+		window.open(image);
+	}
+});
+
+$(document).on("click", ".share__options .button", function () {
+	$("#download").addClass("hidden");
+	let dayIndex = $(this).index();
+	$(this).toggleClass("button--off");
+	$(".share__options .button").css("pointer-events", "none");
+	if ($(this).hasClass("button--off")) {
+		$(".day").eq(dayIndex).addClass("hidden");
+	} else {
+		$(".day").eq(dayIndex).removeClass("hidden");
+	}
+
+	captureWeek();
+});
+
+$(document).on("click", "#cancel-share", function () {
+	toggleOverlay("off");
+	$(".day , .week").removeAttr("style");
+	$(".day").removeClass("hidden");
 });
 
 $(document).on("mouseenter", ".day", function () {
@@ -323,7 +386,7 @@ $(document).on("click", ".button--reminder", function () {
 
 let repeatDays = [];
 
-$(document).on("click", ".week-days__button", function () {
+$(document).on("click", ".create-task .week-days__button", function () {
 	if ($(this).hasClass("button--off")) {
 		$(this).removeClass("button--off");
 		repeatDays.push($(this).index());
@@ -446,10 +509,12 @@ $(document).on("blur", "#task-time", function () {
 
 $(document).on("mouseenter", ".task", function () {
 	$(this).append(taskBadges);
+	$(this).find(".task__time").css("display", "none");
 });
 
 $(document).on("mouseleave", ".task", function () {
 	$(this).find(".task__badges").remove();
+	$(this).find(".task__time").removeAttr("style");
 });
 
 $(document).on("click", ".task__badges img", function (event) {
@@ -509,12 +574,12 @@ function checkTasks() {
 			let uniqueId = weeks[focusedWeek][focusedWeekDays[i]][j].uuid;
 			let taskStatus = weeks[focusedWeek][focusedWeekDays[i]][j].completed;
 
-			taskTime = taskTime != "" ? ` @ ${taskTime}` : "";
+			taskTime = taskTime != "" ? taskTime : "";
 
 			const task = $("<div>");
 			task.addClass("task");
 			task.attr("data-uuid", uniqueId);
-			task.text(`${taskText}${taskTime}`);
+			task.append(`<div class="task__text"><span>${taskText}</span></div><div class="task__time">${taskTime}</div>`);
 
 			if (taskStatus == true) {
 				task.addClass("completed");

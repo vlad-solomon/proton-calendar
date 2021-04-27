@@ -10,8 +10,27 @@
 		box-shadow: -20px 0 0 1px var(--task-hover), 20px 0 0 1px var(--task-hover);
 	}
 	&.completed {
-		text-decoration: line-through;
+		.task__text span {
+			position: relative;
+			&::before {
+				content: "";
+				position: absolute;
+				top: 50%;
+				left: 0;
+				width: 100%;
+				border-bottom: 1px solid var(--accent);
+			}
+		}
 		opacity: 0.5;
+	}
+	&__text {
+		display: flex;
+		align-items: center;
+		img {
+			height: 15px;
+			margin-right: 5px;
+			opacity: 0.4;
+		}
 	}
 	&__badges {
 		display: flex;
