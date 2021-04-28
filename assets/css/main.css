@@ -255,6 +255,12 @@ body {
     padding: 0 30px;
     width: auto;
 }
+.button--text-small {
+    border: 1px solid transparent;
+    font-family: "SF Regular";
+    padding: 0 15px;
+    width: auto !important;
+}
 .button--alt {
     background: transparent;
     border: 1px solid var(--accent);
@@ -414,6 +420,21 @@ body {
     -ms-grid-row: 3;
     -ms-grid-column: 3;
     grid-area: cell3;
+}
+.create-task.someday {
+    grid-template-areas: "cell1" "cell2";
+}
+.create-task.someday .cell2 .cell__title:last-of-type {
+    display: none;
+}
+.create-task.someday .cell2 #task-description {
+    margin: 0;
+}
+.create-task.someday .cell2 .week-days {
+    display: none;
+}
+.create-task.someday .cell3 {
+    display: none;
 }
 
 .share {

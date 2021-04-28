@@ -72,6 +72,7 @@ const shareDialog = `
 			<div class="button">F</div>
 			<div class="button">S</div>
 			<div class="button">S</div>
+			<div class="button button--off button--text-small">Someday</div>
 		</div>
 		<div class="card share__calendar"></div>
 		<div class="share__buttons">

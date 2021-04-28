@@ -1,17 +1,27 @@
+const clockGreeting = $(".clock__greeting");
 const clockTime = $(".clock__time");
 const clockDate = $(".clock__date");
 const calendarControls = $(".calendar-controls .button");
 const overlay = $(".overlay");
 
-let isReminding = false;
+let weeks = store.get("weeks") == undefined ? { user: "userName", repeatedTasks: [], someday: [] } : store.get("weeks");
 
+function localSave() {
+	store.set("weeks", weeks);
+}
+
+localSave();
+
+let isReminding = false;
 let todayIndex;
 let today = moment().format("DD-MM-YYYY");
 let week = moment().isoWeek();
 let currentMonday = 1;
 let remindersArray = [];
-let everyMinute = (60 - moment().seconds()) * 1000;
+let remainingMinute = (60 - moment().seconds()) * 1000;
+let hour = moment().hour();
 
+setGreeting();
 setCurrentTime();
 setCurrentDate();
 generateWeek(currentMonday);
@@ -23,10 +33,24 @@ setInterval(function () {
 
 setTimeout(function () {
 	checkReminders();
+	setGreeting();
 	setInterval(function () {
 		checkReminders();
+		setGreeting();
 	}, 60000);
-}, everyMinute);
+}, remainingMinute);
+
+function setGreeting() {
+	let userName = store.get("weeks").user;
+
+	if (hour >= 5 && hour < 12) {
+		clockGreeting.text(`Good morning, ${userName}!`);
+	} else if (hour >= 12 && hour < 17) {
+		clockGreeting.text(`Good afternoon, ${userName}!`);
+	} else {
+		clockGreeting.text(`Good evening, ${userName}!`);
+	}
+}
 
 function setCurrentTime() {
 	let currentTime = moment().format("HH:mm:ss");
@@ -39,6 +63,7 @@ function setCurrentTime() {
 function checkReminders() {
 	for (i = 0; i < remindersArray.length; i++) {
 		if (moment().format("HH:mm") == remindersArray[i][0]) {
+			toggleOverlay("off");
 			isReminding = true;
 			toggleOverlay("on");
 			if (!$(".overlay .reminder").length) {
@@ -115,10 +140,24 @@ function generateWeek(monday) {
 		$(".week").append(day);
 	}
 
+	const someday = `
+		<div class="day someday" data-day-id="someday">
+			<div class="day__head">
+				<span class="day__date">Someday</span>
+				<div class="day__badges"></div>
+			</div>
+			<div class="day__body">
+				<div class="day__tasks-wrapper"></div>
+			</div>
+		</div>`;
+
+	$(".week").append(someday);
+
 	if (weeks.hasOwnProperty(weekId)) {
 		checkTasks();
 	}
 
+	checkSomedayTasks();
 	checkRepeats();
 	checkToday();
 
@@ -211,6 +250,7 @@ calendarControls.click(function () {
 				"box-shadow": "unset",
 				border: "2px solid #f2f2f2",
 			});
+			$(".day").last().addClass("hidden");
 			$(".week").css("padding", "10px");
 			overlay.append(shareDialog);
 			captureWeek();
@@ -308,11 +348,16 @@ $(document).on("click", ".day__tasks-wrapper > *", function () {
 	toggleOverlay("on");
 	overlay.append(createTaskDialog);
 
-	autosize($("textarea"));
+	if ($(this).parents().eq(2).hasClass("someday")) {
+		$(".create-task").addClass("someday");
+	}
+
 	taskTimeCleave = new Cleave("#task-time", {
 		time: true,
 		timePattern: ["h", "m"],
 	});
+
+	autosize($("textarea"));
 });
 
 $(document).on("click", ".add-task", function () {
@@ -331,9 +376,8 @@ $(document).on("click", ".task", function () {
 	selectedWeek = $(".week").attr("data-week-id");
 	selectedDay = $(this).parents().eq(2).attr("data-day-id");
 	selectedTaskId = $(this).attr("data-uuid");
-	if (!$(this).hasClass("repeated")) {
-		selectedTaskObject = weeks[selectedWeek][selectedDay].find((task) => task.uuid === selectedTaskId);
-	} else {
+
+	if ($(this).hasClass("repeated")) {
 		let originWeek = $(this).attr("data-origin-week");
 		let originDay = $(this).attr("data-origin-day");
 		let originId = $(this).attr("data-origin-id");
@@ -350,6 +394,10 @@ $(document).on("click", ".task", function () {
 
 		$(".overlay__heading").after(repeatWarning);
 		$("#accept").addClass("repeated");
+	} else if ($(this).hasClass("someday")) {
+		selectedTaskObject = weeks.someday.find((task) => task.uuid === selectedTaskId);
+	} else {
+		selectedTaskObject = weeks[selectedWeek][selectedDay].find((task) => task.uuid === selectedTaskId);
 	}
 
 	$(".overlay__heading").text(humazinedDay);
@@ -360,7 +408,7 @@ $(document).on("click", ".task", function () {
 	if (selectedTaskObject.reminder == true) {
 		$(".button--reminder").removeClass("button--off").text("ON").attr("data-reminder", "true");
 	}
-	if (selectedTaskObject.repeats.length > 0) {
+	if (selectedTaskObject.repeats != undefined && selectedTaskObject.repeats.length > 0) {
 		$(".week-days").attr("data-repeats", JSON.stringify(selectedTaskObject.repeats));
 		repeatDays = JSON.parse($(".week-days").attr("data-repeats"));
 		for (i = 0; i < selectedTaskObject.repeats.length; i++) {
@@ -403,7 +451,7 @@ $(document).on("click", ".create-task .week-days__button", function () {
 
 $(document).on("click", "#accept", function () {
 	let uniqueId = uuid.v4();
-	const taskObject = {
+	let taskObject = {
 		uuid: uniqueId,
 		title: $("#task-title").val(),
 		description: $("#task-description").val(),
@@ -416,36 +464,55 @@ $(document).on("click", "#accept", function () {
 		deletedArray: [],
 		completedArray: [],
 	};
-	if (weeks[selectedWeek] == undefined) {
-		weeks[selectedWeek] = {};
-	}
-	if (weeks[selectedWeek][selectedDay] == undefined && !$(this).hasClass("repeated")) {
-		weeks[selectedWeek][selectedDay] = [];
-	}
-	if (isEditingTask) {
-		selectedTaskObject.title = $("#task-title").val();
-		selectedTaskObject.description = $("#task-description").val();
-		selectedTaskObject.time = $("#task-time").val();
-		selectedTaskObject.reminder = JSON.parse($(".button--reminder").attr("data-reminder"));
-		selectedTaskObject.repeats = JSON.parse($(".week-days").attr("data-repeats"));
-		if (selectedTaskObject.repeats.length > 0) {
-			weeks.repeatedTasks.splice(
-				weeks.repeatedTasks.findIndex((index) => index.uuid === selectedTaskObject.uuid),
+	if ($(this).parent().siblings(".create-task").hasClass("someday")) {
+		taskObject = {
+			uuid: uniqueId,
+			title: $("#task-title").val(),
+			description: $("#task-description").val(),
+			completed: false,
+		};
+		if (isEditingTask) {
+			selectedTaskObject.title = $("#task-title").val();
+			selectedTaskObject.description = $("#task-description").val();
+			weeks.someday.splice(
+				weeks.someday.findIndex((index) => index.uuid === selectedTaskObject.uuid),
 				1,
 				selectedTaskObject
 			);
+		} else {
+			weeks.someday.push(taskObject);
 		}
-		if (selectedTaskObject.repeats.length == 0) {
-			weeks.repeatedTasks.splice(
-				weeks.repeatedTasks.findIndex((index) => index.uuid === selectedTaskObject.uuid),
-				1
-			);
-		}
-		isEditingTask = false;
 	} else {
-		weeks[selectedWeek][selectedDay].push(taskObject);
-		if (taskObject.repeats.length > 0) {
-			weeks.repeatedTasks.push(taskObject);
+		if (weeks[selectedWeek] == undefined) {
+			weeks[selectedWeek] = {};
+		}
+		if (weeks[selectedWeek][selectedDay] == undefined && !$(this).hasClass("repeated")) {
+			weeks[selectedWeek][selectedDay] = [];
+		}
+		if (isEditingTask) {
+			selectedTaskObject.title = $("#task-title").val();
+			selectedTaskObject.description = $("#task-description").val();
+			selectedTaskObject.time = $("#task-time").val();
+			selectedTaskObject.reminder = JSON.parse($(".button--reminder").attr("data-reminder"));
+			selectedTaskObject.repeats = JSON.parse($(".week-days").attr("data-repeats"));
+
+			let index = weeks.repeatedTasks.findIndex((index) => index.uuid === selectedTaskObject.uuid);
+
+			if (selectedTaskObject.repeats.length > 0) {
+				if (weeks.repeatedTasks.find((task) => task.uuid === selectedTaskObject.uuid) == undefined) {
+					weeks.repeatedTasks.push(selectedTaskObject);
+				} else {
+					weeks.repeatedTasks.splice(index, 1, selectedTaskObject);
+				}
+			} else {
+				weeks.repeatedTasks.splice(index, 1);
+			}
+			isEditingTask = false;
+		} else {
+			weeks[selectedWeek][selectedDay].push(taskObject);
+			if (taskObject.repeats.length > 0) {
+				weeks.repeatedTasks.push(taskObject);
+			}
 		}
 	}
 
@@ -453,6 +520,8 @@ $(document).on("click", "#accept", function () {
 	generateWeek(currentMonday);
 	toggleOverlay("off");
 	getReminders();
+
+	localSave();
 });
 
 $(document).on("click", "#cancel", function () {
@@ -467,7 +536,11 @@ $(document).on("keyup keydown click", ".create-task", function () {
 	} else {
 		$("#accept").addClass("hidden");
 	}
-	if (isEditingTask) {
+	if (isEditingTask && $(".create-task").hasClass("someday")) {
+		if (selectedTaskObject.title != $("#task-title").val() || selectedTaskObject.description != $("#task-description").val()) {
+			$("#accept").removeClass("hidden");
+		}
+	} else if (isEditingTask && !$(".create-task").hasClass("someday")) {
 		if (
 			selectedTaskObject.title != $("#task-title").val() ||
 			selectedTaskObject.description != $("#task-description").val() ||
@@ -477,10 +550,11 @@ $(document).on("keyup keydown click", ".create-task", function () {
 		) {
 			$("#accept").removeClass("hidden");
 		}
-		if ($("#task-title").val().length == 0) {
-			$("#accept").addClass("hidden");
-		}
 	}
+	if ($("#task-title").val().length == 0) {
+		$("#accept").addClass("hidden");
+	}
+
 	if ($("#task-time").val().length > 0) {
 		$(".reminder-wrap").removeClass("hidden");
 	} else {
@@ -521,7 +595,37 @@ $(document).on("click", ".task__badges img", function (event) {
 	event.stopPropagation();
 	let clickedTaskWeek = $(".week").attr("data-week-id");
 	let clickedTaskDay = $(this).parents().eq(4).attr("data-day-id");
-	if (!$(this).parents().eq(1).hasClass("repeated")) {
+	if ($(this).parents().eq(1).hasClass("repeated")) {
+		let originId = $(this).parents().eq(1).attr("data-origin-id");
+		let index = weeks.repeatedTasks.findIndex((task) => task.uuid === originId);
+		switch ($(this).attr("id")) {
+			case "complete-task":
+				if (!weeks.repeatedTasks[index].completedArray.includes(clickedTaskDay)) {
+					weeks.repeatedTasks[index].completedArray.push(clickedTaskDay);
+				} else {
+					weeks.repeatedTasks[index].completedArray.splice(
+						weeks.repeatedTasks[index].completedArray.findIndex((task) => task === clickedTaskDay),
+						1
+					);
+				}
+				break;
+			case "remove-task":
+				weeks.repeatedTasks[index].deletedArray.push(clickedTaskDay);
+				break;
+		}
+	} else if ($(this).parents().eq(1).hasClass("someday")) {
+		let clickedTaskId = $(this).parents().eq(1).attr("data-uuid");
+		let clickedTaskObject = weeks.someday.find((task) => task.uuid === clickedTaskId);
+		let clickedTaskObjectIndex = weeks.someday.findIndex((task) => task.uuid === clickedTaskId);
+		switch ($(this).attr("id")) {
+			case "complete-task":
+				clickedTaskObject.completed = !clickedTaskObject.completed;
+				break;
+			case "remove-task":
+				weeks.someday.splice(clickedTaskObjectIndex, 1);
+				break;
+		}
+	} else {
 		let clickedTaskId = $(this).parents().eq(1).attr("data-uuid");
 		let clickedTaskObject = weeks[clickedTaskWeek][clickedTaskDay].find((task) => task.uuid === clickedTaskId);
 		let clickedTaskObjectIndex = weeks[clickedTaskWeek][clickedTaskDay].findIndex((task) => task.uuid === clickedTaskId);
@@ -540,28 +644,12 @@ $(document).on("click", ".task__badges img", function (event) {
 				}
 				break;
 		}
-	} else {
-		let originId = $(this).parents().eq(1).attr("data-origin-id");
-		let index = weeks.repeatedTasks.findIndex((task) => task.uuid === originId);
-		switch ($(this).attr("id")) {
-			case "complete-task":
-				if (!weeks.repeatedTasks[index].completedArray.includes(clickedTaskDay)) {
-					weeks.repeatedTasks[index].completedArray.push(clickedTaskDay);
-				} else {
-					weeks.repeatedTasks[index].completedArray.splice(
-						weeks.repeatedTasks[index].completedArray.findIndex((task) => task === clickedTaskDay),
-						1
-					);
-				}
-				break;
-			case "remove-task":
-				weeks.repeatedTasks[index].deletedArray.push(clickedTaskDay);
-				break;
-		}
 	}
 
 	generateWeek(currentMonday);
 	getReminders();
+
+	localSave();
 });
 
 function checkTasks() {
@@ -586,6 +674,27 @@ function checkTasks() {
 			}
 
 			$(`.day[data-day-id="${focusedWeekDays[i]}"]`).find(".day__tasks-wrapper").append(task);
+		}
+	}
+}
+
+function checkSomedayTasks() {
+	if (weeks.someday.length > 0) {
+		for (i = 0; i < weeks.someday.length; i++) {
+			let somedayTaskId = weeks.someday[i].uuid;
+			let somedayTaskText = weeks.someday[i].title;
+			let somedayTaskStatus = weeks.someday[i].completed;
+
+			const somedayTask = $("<div>");
+			somedayTask.addClass("task someday");
+			somedayTask.attr("data-uuid", somedayTaskId);
+			somedayTask.append(`<div class="task__text"><span>${somedayTaskText}</span></div>`);
+
+			if (somedayTaskStatus == true) {
+				somedayTask.addClass("completed");
+			}
+
+			$(".someday").find(".day__tasks-wrapper").append(somedayTask);
 		}
 	}
 }

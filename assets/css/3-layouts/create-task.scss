@@ -24,7 +24,6 @@
 			resize: none;
 			border: none;
 			border-radius: 0;
-			// padding: 0 0 5px 0;
 			padding: 0;
 			font-size: 1.125rem;
 			line-height: 100%;
@@ -68,6 +67,26 @@
 	@for $i from 1 through 3 {
 		.cell#{$i} {
 			grid-area: cell#{$i};
+		}
+	}
+
+	&.someday {
+		grid-template-areas:
+			"cell1"
+			"cell2";
+		.cell2 {
+			.cell__title:last-of-type {
+				display: none;
+			}
+			#task-description {
+				margin: 0;
+			}
+			.week-days {
+				display: none;
+			}
+		}
+		.cell3 {
+			display: none;
 		}
 	}
 }
