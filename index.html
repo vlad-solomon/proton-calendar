@@ -6,36 +6,69 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Proton</title>
 		<link rel="stylesheet" href="assets/css/main.css" />
+		<!-- !REMOVE HEAD STYLE -->
+		<style>
+			/* body {
+				background-color: #000;
+			}
+			.page-content {
+				background-color: #fff;
+			}
+			body {
+				filter: invert(100%);
+			} */
+
+			/* .repeated {
+				border: 1px solid red;
+			}
+			.root-repeated {
+				border: 1px dashed blue;
+			}
+			.task.someday {
+				border: 1px solid green;
+			} */
+		</style>
 	</head>
 	<body>
 		<div class="overlay hidden"></div>
 		<div class="page-content">
-			<div class="clock">
+			<div class="clock hidden">
 				<span class="clock__greeting"></span>
 				<span class="clock__time"></span>
 				<span class="clock__date"></span>
+				<div class="calendar-controls">
+					<div id="today" class="button button--text hidden">Jump to today</div>
+					<div id="settings" class="button button--alt"><img src="assets/img/settings.svg" alt="settings" /></div>
+					<div id="prev" class="button"><img src="assets/img/prev-week.svg" alt="prev-week" /></div>
+					<div id="next" class="button"><img src="assets/img/next-week.svg" alt="next-week" /></div>
+				</div>
 			</div>
-			<div class="calendar-controls">
-				<div id="today" class="button button--text hidden">Jump to today</div>
-				<div id="share" class="button button--alt"><img src="assets/img/share.svg" alt="share-week" /></div>
-				<div id="prev" class="button"><img src="assets/img/prev-week.svg" alt="prev-week" /></div>
-				<div id="next" class="button"><img src="assets/img/next-week.svg" alt="next-week" /></div>
-			</div>
-			<div class="week"></div>
+			<div class="week" style="margin-bottom: 500px"></div>
 		</div>
 		<audio id="reminder-notification" loop><source src="assets/sounds/notification.mp3" type="audio/mpeg" /></audio>
-
+		<!-- Firebase -->
+		<script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-auth.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-firestore.js"></script>
+		<script>
+			var firebaseConfig = {
+				apiKey: "AIzaSyAKdxRVkYD2jd0zkqJwgdCdOpH7hnZ7Kek",
+				authDomain: "proton-calendar.firebaseapp.com",
+				projectId: "proton-calendar",
+				storageBucket: "proton-calendar.appspot.com",
+				messagingSenderId: "133761620736",
+				appId: "1:133761620736:web:f692fa9420433e4f79f1e5",
+				measurementId: "G-MGYFGJ8WH8",
+			};
+			firebase.initializeApp(firebaseConfig);
+		</script>
+		<!-- Utilities -->
 		<script
 			src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
 			integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
 			crossorigin="anonymous"
 		></script>
 		<script src="https://momentjs.com/downloads/moment.js"></script>
-		<script
-			src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"
-			integrity="sha512-UNM1njAgOFUa74Z0bADwAq8gbTcqZC8Ej4xPSzpnh0l6KMevwvkBvbldF9uR++qKeJ+MOZHRjV1HZjoRvjDfNQ=="
-			crossorigin="anonymous"
-		></script>
 		<script
 			src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"
 			integrity="sha512-KaIyHb30iXTXfGyI9cyKFUIRSSuekJt6/vqXtyQKhQP6ozZEGY8nOtRS6fExqE4+RbYHus2yGyYg1BrqxzV6YA=="
@@ -46,14 +79,9 @@
 			integrity="sha512-Fv9UOVSqZqj4FDYBbHkvdMFOEopbT/GvdTQfuWUwnlOC6KR49PnxOVMhNG8LzqyDf+tYivRqIWVxGdgsBWOmjg=="
 			crossorigin="anonymous"
 		></script>
-		<script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
-		<script
-			src="https://cdnjs.cloudflare.com/ajax/libs/store.js/2.0.12/store.everything.min.js"
-			integrity="sha512-zpuvpsrvBAZKlUIbof/0MHSpnIAmb9/eQFM9v7qVfJY5anuvhhsCbZ2JG/QS1Fqw+MmybnOf02PAbiJvoZdrKg=="
-			crossorigin="anonymous"
-		></script>
 
 		<script src="assets/js/templates.js"></script>
+		<script src="assets/js/weather.js"></script>
 		<script src="assets/js/app.js"></script>
 	</body>
 </html>

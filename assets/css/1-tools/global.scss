@@ -8,6 +8,11 @@
 // 	background-color: transparent;
 // }
 
+textarea,
+input {
+	background: none;
+}
+
 * {
 	-ms-overflow-style: none;
 	scrollbar-width: none;
@@ -19,12 +24,63 @@
 html,
 body {
 	height: 100%;
-	overflow: hidden;
+	// overflow: hidden;
+}
+
+body {
+	background-color: var(--alternate);
+	&.dark-theme {
+		--accent: #f0f6f0;
+		--alternate: #222323;
+		--task-hover: #2c2d2d;
+		--drop-shadow: 0px 1px 2px rgba(0, 0, 0, 0.08), 0px 2px 4px rgba(0, 0, 0, 0.08), 0px 4px 8px rgba(0, 0, 0, 0.08);
+		--button-background: radial-gradient(106.63% 70.07% at 70% 22%, #ffffff 0%, #b2b2b2 100%);
+		.button--off {
+			color: rgba(255, 255, 255, 0.5) !important;
+			border: 1px solid rgba(255, 255, 255, 0.05) !important;
+		}
+		.cell__input {
+			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+		}
+		.overlay {
+			background-color: rgba(0, 0, 0, 0.1);
+		}
+		.day__tasks-wrapper {
+			background-image: url("../img/divider-dark.png");
+		}
+		img {
+			filter: invert(100%);
+		}
+	}
+}
+
+a {
+	color: currentColor;
+	text-decoration: none;
+	font-family: "SF Bold";
+	&.no-after {
+		&::after {
+			display: none;
+		}
+	}
+	&::after {
+		content: "↗";
+		font-size: 12px;
+		position: relative;
+		font-family: "SF Regular";
+		text-decoration: none;
+		margin: 0 2px;
+		display: inline-block;
+		transform: translateY(1px);
+	}
+}
+
+a:hover {
+	text-decoration: underline;
 }
 
 .page-content {
 	position: relative;
-	height: 100%;
 	max-width: 1820px;
 	margin: 0 auto;
 	padding-top: 30px;
@@ -32,4 +88,11 @@ body {
 
 .hidden {
 	display: none !important;
+}
+
+kbd {
+	border: 1px solid var(--accent);
+	padding: 0 6px;
+	border-radius: 4px;
+	font-family: "SF Regular";
 }

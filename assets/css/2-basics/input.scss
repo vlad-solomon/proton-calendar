@@ -1,0 +1,18 @@
+.input {
+	&__title {
+		@extend .card__title;
+	}
+	&__text {
+		display: block;
+		width: 100%;
+		resize: none;
+		border: none;
+		border-radius: 0;
+		padding: 0 0 8px 0;
+		font-size: 1.125rem;
+		line-height: 100%;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+		outline: none;
+		overflow-wrap: anywhere;
+	}
+}

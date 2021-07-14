@@ -1,1 +1,4 @@
 prepros.config
+_old/
+.vscode/
+structure.json

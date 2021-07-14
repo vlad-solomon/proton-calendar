@@ -1,0 +1,48 @@
+.sign-up {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	height: 100%;
+	width: 750px;
+	background-color: var(--alternate);
+	padding: 50px 100px;
+	box-shadow: 6px 0 8px rgba(0, 0, 0, 0.02), 12px 0 16px rgba(0, 0, 0, 0.02), 24px 0 32px rgba(0, 0, 0, 0.02);
+	border-radius: 4px;
+	&__heading {
+		color: var(--accent);
+		font-family: "SF Bold";
+		font-size: 4.5rem;
+		line-height: 110%;
+		margin: 60px 0;
+	}
+	&__blurb {
+		color: var(--accent);
+		opacity: 0.4;
+		display: block;
+		font-size: 1.125rem;
+		line-height: 150%;
+		&:last-of-type {
+			margin: 10px 0 50px 0;
+		}
+	}
+	.button,
+	.input__text {
+		width: 50%;
+		margin-bottom: 30px;
+	}
+	&__footer {
+		display: grid;
+		grid-template-rows: 1fr 1fr;
+		grid-auto-flow: column;
+		width: 100%;
+		margin-top: auto;
+		span {
+			font-size: 0.875rem;
+			color: var(--accent);
+			opacity: 0.4;
+			&:nth-last-of-type(-n + 2) {
+				text-align: right;
+			}
+		}
+	}
+}

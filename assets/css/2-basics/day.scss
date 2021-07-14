@@ -3,8 +3,19 @@
 	flex-direction: column;
 	height: 364px;
 	box-shadow: var(--drop-shadow);
+	color: var(--accent);
+	background-color: var(--alternate);
 	border-radius: 2px;
 	overflow: hidden;
+	&.someday {
+		order: 1;
+		&.transparent {
+			opacity: 0.2;
+			&:hover {
+				opacity: 1;
+			}
+		}
+	}
 	&__head {
 		display: flex;
 		flex-shrink: 0;

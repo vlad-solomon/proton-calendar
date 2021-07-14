@@ -9,10 +9,11 @@
 	background-color: var(--accent);
 	cursor: pointer;
 	border-radius: 25px;
+	flex-shrink: 0;
 	&--text {
 		font-family: "SF Bold";
 		padding: 0 30px;
-		width: auto;
+		width: auto !important;
 	}
 	&--text-small {
 		border: 1px solid transparent;
@@ -28,11 +29,22 @@
 		height: 35px;
 		width: 100%;
 		font-size: 0.875rem;
-		text-transform: uppercase;
+		text-transform: capitalize;
 	}
 	&--off {
 		color: rgba(0, 0, 0, 0.5) !important;
 		border: 1px solid rgba(0, 0, 0, 0.05);
 		background: none !important;
+	}
+	&--setting {
+		height: initial;
+		width: initial;
+		padding: 10px 30px;
+		display: inline-block;
+		margin: 0 10px 10px 0;
+	}
+	&--warning {
+		@extend .button--setting;
+		margin-top: 10px;
 	}
 }

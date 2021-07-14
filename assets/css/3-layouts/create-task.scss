@@ -19,6 +19,7 @@
 			@extend .card__title;
 		}
 		&__input {
+			color: var(--accent);
 			display: block;
 			width: 100%;
 			resize: none;

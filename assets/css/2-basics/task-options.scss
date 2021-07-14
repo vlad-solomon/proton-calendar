@@ -1,0 +1,15 @@
+.task-options {
+	padding-bottom: 0px;
+	overflow: hidden;
+	.card__title {
+		margin-bottom: 10px;
+	}
+	&__option {
+		@extend .reminder__task;
+		cursor: pointer;
+		&:hover {
+			background-color: var(--task-hover);
+			box-shadow: -15px 0 0 1px var(--task-hover), 15px 0 0 1px var(--task-hover);
+		}
+	}
+}
