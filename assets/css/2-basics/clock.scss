@@ -10,6 +10,7 @@
 	&__date {
 		font-size: 1.125rem;
 		opacity: 0.5;
+		width: 70%;
 	}
 	&__time {
 		font-size: 3rem;
@@ -18,10 +19,11 @@
 	}
 	&--sticky {
 		padding: 15px;
-		border-radius: 2px;
+		border-radius: 0 0 2px 2px;
 		box-shadow: var(--drop-shadow);
 		width: calc(100% + 30px);
 		margin-left: -15px;
+		z-index: 1;
 		.clock {
 			&__greeting {
 				display: none;

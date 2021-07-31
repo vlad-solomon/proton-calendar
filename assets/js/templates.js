@@ -40,11 +40,13 @@ const createTaskDialog = `
 	<div class="create-task card">
 		<div class="cell cell1">
 			<span class="cell__title">Title</span>
-			<textarea class="cell__input" id="task-title" spellcheck="false"></textarea>
+			<textarea class="cell__input" id="task-title" spellcheck="false" maxlength="100"></textarea>
 		</div>
 		<div class="cell cell2">
 			<span class="cell__title">Description</span>
-			<textarea class="cell__input" id="task-description" spellcheck="false"></textarea>
+			<textarea class="cell__input" id="task-description" spellcheck="false" maxlength="200"></textarea>
+		</div>
+		<div class="cell cell4">
 			<span class="cell__title">Repeat</span>
 			<div class="week-days">
 				<div class="week-days__button button--off">M</div>
@@ -57,8 +59,10 @@ const createTaskDialog = `
 			</div>
 		</div>
 		<div class="cell cell3">
-			<span class="cell__title">Time</span>
-			<input class="cell__input" placeholder="00:00" id="task-time" autocomplete="off" type="tel"></input>
+			<div class="time-wrap">
+				<span class="cell__title">Time</span>
+				<input class="cell__input" placeholder="00:00" id="task-time" autocomplete="off" type="tel"></input>
+			</div>
 			<div class="reminder-wrap hidden">
 				<span class="cell__title">Reminder</span>
 				<div class="button button--reminder button--off" data-reminder="false">off</div>
@@ -75,9 +79,7 @@ const createTaskDialog = `
 
 const weatherDialog = `
 	<span class="overlay__heading">Weather forecast</span>
-	<div class="weather">
-		<img src="assets/img/weather/01d.svg" class="weather__loading">
-	</div>
+	<div class="weather"></div>
 	<div class="button button__close hidden" id="cancel-weather"><img src="assets/img/cancel.svg" alt="cancel" /></div>
 `;
 
@@ -88,9 +90,11 @@ const settingsDialog = `
 			<div class="settings__option active">Personalization</div>
 			<div class="settings__option">Account</div>
 			<div class="settings__option">About</div>
-			<div class="settings__option" id="sign-out">Sign out</div>
+			<div class="settings__option">FAQ</div>
+			<div class="settings__option sign-out">Sign out</div>
 		</div>
 		<div class="settings__section" data-option="personalization">
+			<span class="settings__group-title">Personalization</span>
 			<span class="settings__title">Name</span>
 			<div class="settings__group" data-setting="name">
 				<div class="button button--setting button--off" data-option="short">Short</div>
@@ -110,6 +114,7 @@ const settingsDialog = `
 			</div>
 		</div>
 		<div class="settings__section hidden" data-option="account">
+			<span class="settings__group-title">Accout</span>
 			<span class="settings__title">Personal information</span>
 			<span class="settings__text">Name <strong id="personal-name"></strong></span>
 			<span class="settings__text">Email <strong id="personal-email"></strong></span>
@@ -122,26 +127,45 @@ const settingsDialog = `
 			<div class="button button--warning" id="delete-user-account">Delete account</div>
 		</div>
 		<div class="settings__section hidden" data-option="about">
+			<span class="settings__group-title">About</span>
 			<span class="settings__title">About Proton Calendar</span>
 			<span class="settings__text"
 				>Proton Calendar is a light-weight web application that syncs your data between all your devices. With it’s light and simple interface, Proton will help you plan your weeks from now
 				on. Add, modify, delete, even make recursive tasks so you’ll keep your schedule tight!</span
 			>
-			<span class="settings__title">Keyboard shortcuts</span>
+			<span class="settings__title">About the project</span>
+			<div class="settings__text">
+				Proton Calendar is being designed & developed by <a href="https://github.com/vlad-solomon" class="no-after" target="_blank">Vlad Solomon</a> using Moment.js and Firebase. The project
+				is a public one, so anyone can help using the links below.
+			</div>
+			<div class="settings__text"><a href="https://github.com/vlad-solomon/proton-calendar" target="_blank">Github repo</a></div>
+			<div class="settings__text"><a href="https://github.com/vlad-solomon/proton-calendar/pulls" target="_blank">Create a pull request</a></div>
+			<div class="settings__text">If you want to support the project monetarily, you can donate directly to me <a href="https://www.buymeacoffee.com/vladsolomon" target="_blank">here</a></div>
+			<span class="settings__title">Version info</span>
+			<div class="settings__text">V1.0.0 - Initial release - July 2021</div>
+		</div>
+		<div class="settings__section hidden" data-option="faq">
+			<span class="settings__group-title">FAQ</span>
+			<span class="settings__title">How do I complete or remove a task?</span>
+			<div class="settings__text">To complete or remove a task taphold or right click on it.</div>
+			<span class="settings__title">How do I edit an existing task?</span>
+			<div class="settings__text">Find the task you want to edit and click or tap on it and make any changes you would like to it.</div>
+			<span class="settings__title">How do I repeat a task?</span>
+			<div class="settings__text">When creating a task choose what days of the week you'll like the task to repeat on. To stop a task from being a repeated one unselect all the repeated days.</div>
+			<span class="settings__title">Does deleting the root of a repeated task delete all of its repeating children?</span>
+			<div class="settings__text">Yes. If you delete the original task, all its repeating children will also be removed.</div>
+			<span class="settings__title">Does Proton have keyboard shortcuts?</span>
 			<div class="settings__text">If you're on a device that supports keyboard inputs, you can use the shortcuts below to navigate Proton Calendar faster:</div>
 			<div class="settings__text">Press <kbd>&larr;</kbd> or <kbd>&rarr;</kbd> to navigate backwards or forwards between weeks.</div>
 			<div class="settings__text">Press <kbd>T</kbd> to jump to today.</div>
 			<div class="settings__text">Press <kbd>W</kbd> to get the weather forecast.</div>
+			<div class="settings__text">Press <kbd>Return</kbd> to apply any changes you've made.</div>
 			<div class="settings__text">Press <kbd>Esc</kbd> to exit out of any dialog.</div>
-			<span class="settings__title">About the project</span>
-			<div class="settings__text">
-				Proton Calendar is being designed & developed by <a href="https://github.com/vlad-solomon" class="no-after" target="_blank">Vlad Solomon</a> using Moment.js and Firebase. The project
-				is a public one, so anyone can help using the links below:
-			</div>
-			<div class="settings__text"><a href="https://github.com/vlad-solomon/proton-calendar" target="_blank">Github repo</a></div>
-			<div class="settings__text"><a href="https://github.com/vlad-solomon/proton-calendar/pulls" target="_blank">Create a pull request</a></div>
-			<span class="settings__title">Version info</span>
-			<div class="settings__text">V0.9.0 - Initial release - July 2021</div>
+			<span class="settings__title">Will Proton Calendar be free for everyone?</span>
+			<div class="settings__text">Always and forever!</div>
+		</div>
+		<div class="settings__section" id="mobile-signout">
+			<span class="settings__group-title sign-out">Sign out</span>
 		</div>
 	</div>
 	<div class="button button__close"><img src="assets/img/cancel.svg" alt="cancel" /></div>

@@ -96,8 +96,13 @@ select {
 
 :root {
     font-size: 16px;
-    font-family: "SF Regular";
-    color: var(--accent);
+}
+
+::selection {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+::selection:not(textarea, input) {
+    background-color: transparent;
 }
 
 textarea,
@@ -106,19 +111,31 @@ input {
 }
 
 * {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-tap-highlight-color: transparent;
     -ms-overflow-style: none;
     scrollbar-width: none;
+}
+*:not(textarea, input) {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 *::-webkit-scrollbar {
     display: none;
 }
 
-html,
-body {
-    height: 100%;
+.overflow-hidden {
+    overflow: hidden;
+}
+
+img {
+    pointer-events: none;
 }
 
 body {
+    font-family: "SF Regular", "Arial", sans-serif;
+    color: var(--accent);
     background-color: var(--alternate);
 }
 body.dark-theme {
@@ -141,7 +158,7 @@ body.dark-theme .overlay {
 body.dark-theme .day__tasks-wrapper {
     background-image: url("../img/divider-dark.png");
 }
-body.dark-theme img {
+body.dark-theme img:not(.loading__logo) {
     filter: invert(100%);
 }
 
@@ -162,6 +179,7 @@ a::after {
     margin: 0 2px;
     display: inline-block;
     transform: translateY(1px);
+    width: 0;
 }
 
 a:hover {
@@ -198,6 +216,7 @@ kbd {
 .clock__greeting, .clock__date {
     font-size: 1.125rem;
     opacity: 0.5;
+    width: 70%;
 }
 .clock__time {
     font-size: 3rem;
@@ -206,10 +225,11 @@ kbd {
 }
 .clock--sticky {
     padding: 15px;
-    border-radius: 2px;
+    border-radius: 0 0 2px 2px;
     box-shadow: var(--drop-shadow);
     width: calc(100% + 30px);
     margin-left: -15px;
+    z-index: 1;
 }
 .clock--sticky .clock__greeting {
     display: none;
@@ -311,12 +331,15 @@ kbd {
     border-bottom: 1px solid var(--accent);
 }
 .task__text {
-    display: flex;
-    align-items: center;
+    width: 80%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 .task__text img {
+    display: inline-block;
     height: 15px;
-    margin-right: 5px;
+    margin: 0 5px -2px 0;
     opacity: 0.4;
 }
 .task__badges {
@@ -341,6 +364,15 @@ kbd {
     cursor: pointer;
     border-radius: 25px;
     flex-shrink: 0;
+}
+.button *::selection, .create-task .cell .week-days__button *::selection {
+    background-color: transparent;
+}
+.button:hover, .create-task .cell .week-days__button:hover {
+    opacity: 0.9;
+}
+.button:active, .create-task .cell .week-days__button:active {
+    opacity: 0.5;
 }
 .button--text {
     font-family: "SF Bold";
@@ -394,7 +426,8 @@ kbd {
 }
 
 .card, .overlay__warning {
-    width: 410px;
+    max-width: 410px;
+    width: 100%;
     background-color: var(--alternate);
     margin-bottom: 40px;
     border-radius: 2px;
@@ -424,19 +457,20 @@ kbd {
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: auto;
     position: fixed;
     top: 0;
     left: 0;
     height: 100%;
     width: 100%;
-    padding-top: 90px;
-    z-index: 1;
+    padding: 90px 0;
+    z-index: 2;
     background-color: rgba(255, 255, 255, 0.4);
     -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
 }
 .overlay--sign-up {
-    flex-direction: row;
+    display: block;
     padding: 15px;
     background-color: rgba(240, 240, 240, 0.4);
 }
@@ -446,6 +480,7 @@ kbd {
     font-size: 3rem;
     font-family: "SF Bold";
     margin-bottom: 40px;
+    text-align: center;
 }
 .overlay__warning {
     position: relative;
@@ -498,6 +533,7 @@ kbd {
     gap: 20px;
     width: 100%;
     margin-top: 55px;
+    padding-bottom: 25px;
 }
 .week__watermark {
     font-family: "SF Bold";
@@ -513,7 +549,7 @@ kbd {
     display: grid;
     grid-template-columns: 1fr;
     gap: 15px;
-    grid-template-areas: "cell1 cell1" "cell2 cell3";
+    grid-template-areas: "cell1 cell1" "cell2 cell3" "cell4 cell3";
 }
 .create-task__buttons {
     display: flex;
@@ -523,6 +559,9 @@ kbd {
 }
 .create-task .cell.cell3 {
     width: 95px;
+}
+.create-task .cell.cell4 {
+    margin-top: -15px;
 }
 .create-task .cell__input {
     color: var(--accent);
@@ -578,6 +617,7 @@ kbd {
 }
 .create-task .cell3 {
     -ms-grid-row: 3;
+    -ms-grid-row-span: 3;
     -ms-grid-column: 3;
     grid-area: cell3;
 }
@@ -590,10 +630,10 @@ kbd {
 .create-task.someday .cell2 #task-description {
     margin: 0;
 }
-.create-task.someday .cell2 .week-days {
-    display: none;
-}
 .create-task.someday .cell3 {
+    display: none !important;
+}
+.create-task.someday .cell4 {
     display: none;
 }
 
@@ -635,8 +675,8 @@ kbd {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    height: 100%;
-    width: 750px;
+    min-height: 100%;
+    max-width: 750px;
     background-color: var(--alternate);
     padding: 50px 100px;
     box-shadow: 6px 0 8px rgba(0, 0, 0, 0.02), 12px 0 16px rgba(0, 0, 0, 0.02), 24px 0 32px rgba(0, 0, 0, 0.02);
@@ -682,22 +722,10 @@ kbd {
 
 .weather {
     display: grid;
-    min-height: 580px;
     align-items: center;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(6, 1fr);
     gap: 30px;
     margin-bottom: 40px;
-}
-.weather__loading {
-    animation: load 2s forwards infinite linear;
-}
-@keyframes load {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
 }
 .weather .card, .weather .overlay__warning {
     color: var(--accent);
@@ -729,9 +757,12 @@ kbd {
 .weather .card__text--description::first-letter {
     text-transform: uppercase;
 }
+.weather .card__text--temperature-mobile {
+    display: none;
+}
 
 .settings {
-    width: 550px;
+    max-width: 550px;
     height: 350px;
     display: grid;
     grid-template-columns: 135px 1fr;
@@ -782,4 +813,294 @@ kbd {
 .settings__option.active {
     background-color: var(--task-hover);
     box-shadow: -15px 0 0 1px var(--task-hover), 15px 0 0 1px var(--task-hover);
+}
+.settings__group-title {
+    display: none;
+    color: var(--accent);
+    width: 100%;
+    background-color: var(--task-hover);
+    padding: 15px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+}
+.settings #mobile-signout {
+    margin: 0;
+}
+.settings #mobile-signout > span {
+    margin: 0;
+    cursor: pointer;
+}
+
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: #fff;
+    color: #000;
+}
+.loading__details {
+    position: absolute;
+    bottom: 25px;
+    font-family: "SF Bold";
+    opacity: 0.1;
+}
+
+.touch-nav {
+    position: fixed;
+    bottom: 0;
+    background-color: var(--alternate);
+    display: flex;
+    border-radius: 2px 2px 0 0;
+    padding: 15px;
+    box-shadow: var(--drop-shadow);
+    left: 50%;
+    transform: translateX(-50%);
+}
+.touch-nav .button, .touch-nav .create-task .cell .week-days__button, .create-task .cell .touch-nav .week-days__button {
+    position: relative;
+}
+.touch-nav .button:not(:last-of-type), .touch-nav .create-task .cell .week-days__button:not(:last-of-type), .create-task .cell .touch-nav .week-days__button:not(:last-of-type) {
+    margin-right: 20px;
+}
+
+@media (max-width: 1880px) {
+    .page-content {
+        max-width: 100%;
+        padding-right: 25px;
+        padding-left: 25px;
+    }
+}
+@media (max-width: 1720px) {
+    .week {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (max-width: 1380px) {
+    .weather {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+@media (max-width: 1100px) {
+    .day {
+        height: 324px;
+    }
+}
+@media (max-width: 950px) {
+    .weather {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .week {
+        grid-template-columns: repeat(2, 1fr);
+        padding-bottom: 100px;
+    }
+}
+@media (max-width: 900px) {
+    .clock__greeting, .clock__date {
+        font-size: 1rem;
+    }
+    .clock__time {
+        font-size: 2rem;
+        margin: 5px 0;
+    }
+
+    #settings {
+        height: 40px;
+        width: 40px;
+        margin: 0;
+    }
+}
+@media (max-width: 750px) {
+    .week {
+        grid-template-columns: 1fr;
+    }
+
+    .weather {
+        grid-template-columns: 1fr;
+        width: 95%;
+    }
+    .weather .card, .weather .overlay__warning {
+        max-width: none;
+        width: 100%;
+        height: auto;
+        margin: 0 auto;
+        padding: 20px;
+        flex-direction: row;
+        justify-content: flex-start;
+    }
+    .weather .card .icon, .weather .overlay__warning .icon {
+        height: 80px;
+        margin-right: 15px;
+    }
+    .weather .card__text--description {
+        font-size: 1.25rem;
+        margin: 0 0 4px 0;
+    }
+    .weather .card__text--temperature {
+        display: none;
+    }
+    .weather .card__text--temperature-mobile {
+        display: flex;
+    }
+    .weather .card__text--temperature-mobile .horiz-line {
+        width: 20px;
+    }
+    .weather .card__text--time {
+        flex-direction: column;
+        margin-left: auto;
+    }
+    .weather .card__text--time .horiz-line {
+        height: 20px;
+        width: 2px;
+        margin: 4px 0;
+    }
+}
+@media (max-width: 700px) {
+    .sign-up {
+        padding: 50px;
+    }
+    .sign-up__heading {
+        font-size: 4rem;
+    }
+    .sign-up__blurb {
+        font-size: 1.25rem;
+    }
+    .sign-up__footer {
+        grid-template-rows: unset;
+        grid-auto-flow: unset;
+    }
+    .sign-up__footer span {
+        text-align: center !important;
+        margin-bottom: 5px;
+    }
+    .sign-up #google-sign-in {
+        width: 100% !important;
+        height: 60px;
+        border-radius: 30px;
+        font-size: 1.25rem;
+        margin: 50px 0 150px 0;
+    }
+}
+@media (max-width: 640px) {
+    .settings {
+        display: block;
+        height: auto;
+        padding: 15px;
+        max-width: 410px;
+    }
+    .settings__sidebar {
+        display: none;
+    }
+    .settings__section {
+        display: block !important;
+        margin-bottom: 20px;
+        padding: 0;
+    }
+    .settings__group-title {
+        display: block;
+    }
+
+    .button--setting, .button--warning {
+        display: flex;
+    }
+}
+@media (max-width: 500px) {
+    .weather {
+        padding: 0;
+    }
+
+    .overlay {
+        padding: 40px 4px;
+    }
+    .overlay--sign-up {
+        padding: 4px;
+    }
+    .overlay__heading {
+        font-size: 2.25rem;
+    }
+
+    .week {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .day {
+        height: 400px;
+    }
+
+    .create-task {
+        grid-template-areas: "cell1" "cell2" "cell3" "cell4";
+    }
+    .create-task .cell #task-time {
+        margin: 0;
+    }
+    .create-task .cell .button--reminder {
+        flex: 1;
+    }
+    .create-task .cell.cell3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        width: unset;
+    }
+    .create-task .cell.cell3 .reminder-wrap {
+        display: flex;
+        flex-direction: column;
+    }
+    .create-task .cell.cell4 {
+        margin: 0;
+    }
+
+    .sign-up__heading {
+        font-size: 3rem;
+    }
+    .sign-up__blurb {
+        font-size: 1rem;
+    }
+    .sign-up #google-sign-in {
+        font-size: 1rem;
+    }
+
+    .create-task .cell1 {
+        -ms-grid-row: 1;
+        -ms-grid-column: 1;
+        -ms-grid-column-span: 1;
+    }
+
+    .create-task .cell2 {
+        -ms-grid-row: 2;
+        -ms-grid-column: 1;
+    }
+
+    .create-task .cell3 {
+        -ms-grid-row: 3;
+        -ms-grid-row-span: 1;
+        -ms-grid-column: 1;
+    }
+}
+@media (max-width: 375px) {
+    .sign-up {
+        padding: 35px;
+    }
+    .sign-up #google-sign-in {
+        text-align: center;
+    }
+}
+@media (hover: none) {
+    .add-task {
+        display: flex !important;
+    }
+}
+@supports not ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+    .overlay {
+        background-color: var(--alternate) !important;
+    }
 }

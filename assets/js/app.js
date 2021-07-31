@@ -4,12 +4,77 @@ const clockDate = $(".clock__date");
 const calendarControls = $(".calendar-controls .button");
 const overlay = $(".overlay");
 
+$(document).on("contextmenu", overlay, function (event) {
+	event.preventDefault();
+});
+$.event.special.tap.tapholdThreshold = 250;
+
 let db = firebase.firestore();
 let auth = firebase.auth();
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-let unsubscribe, unsubscribeFromSomeday, unsubscribeFromRepeats;
+let unsubscribe, unsubscribeFromSomeday, unsubscribeFromRepeats, unsubscribeFromSettings;
 let unsubscribeArray = [];
+
+function subscribeToSettings() {
+	unsubscribeFromSettings = db
+		.collection("users")
+		.doc(auth.currentUser.uid)
+		.onSnapshot((doc) => {
+			switch (doc.data().settings.name) {
+				case "short":
+					greetingName = doc.data().details.shortName;
+					break;
+				case "long":
+					greetingName = doc.data().details.longName;
+					break;
+				case "email":
+					greetingName = doc.data().details.email;
+					break;
+			}
+			switch (doc.data().settings.theme) {
+				case "light":
+					$("body").removeClass("dark-theme");
+					break;
+				case "dark":
+					$("body").addClass("dark-theme");
+					break;
+			}
+			switch (doc.data().settings.showSomeday) {
+				case "show":
+					$(".day.someday").attr("class", "day someday");
+					break;
+				case "hide":
+					$(".day.someday").attr("class", "day someday hidden");
+					break;
+				case "transparent":
+					$(".day.someday").attr("class", "day someday transparent");
+					break;
+			}
+			setGreeting();
+			loadSettings();
+		});
+}
+
+function loadSettings() {
+	$(".button--setting").addClass("button--off");
+	db.collection("users")
+		.doc(auth.currentUser.uid)
+		.get()
+		.then((doc) => {
+			$(`.button--setting[data-option="${doc.data().settings.name}"]`).removeClass("button--off");
+			$(`.button--setting[data-option="${doc.data().settings.theme}"]`).removeClass("button--off");
+			$(`.button--setting[data-option="${doc.data().settings.showSomeday}"]`).removeClass("button--off");
+			$("#personal-name").text(doc.data().details.longName);
+			$("#personal-email").text(doc.data().details.email);
+			$("#personal-provider").text(doc.data().details.provider);
+		})
+		.then(() => {
+			setTimeout(() => {
+				$(".loading").fadeOut(500);
+			}, 500);
+		});
+}
 
 function unsubscribeFromPreviousWeek() {
 	for (i = 0; i < unsubscribeArray.length; i++) {
@@ -74,14 +139,43 @@ $(document).on("keydown", function (event) {
 				triggerClick(".button__close");
 			}
 			break;
+		case "Enter":
+			if (!overlay.hasClass("hidden") && !$("#accept").hasClass("hidden")) {
+				$("#task-time").blur();
+				triggerClick("#accept");
+			}
+			break;
+	}
+});
+
+//! keyboard input end here
+
+$(document).on("keydown", "textarea", function (event) {
+	if (event.key === "Enter") {
+		event.preventDefault();
+	}
+});
+
+$(document).on("paste", "textarea", function (event) {
+	event.preventDefault();
+	let text = "";
+	if (event.clipboardData || event.originalEvent.clipboardData) {
+		text = (event.originalEvent || event).clipboardData.getData("text/plain");
+	} else if (window.clipboardData) {
+		text = window.clipboardData.getData("Text");
+	}
+	text = text.replace(/\r?\n|\r/g, "");
+
+	if (document.queryCommandSupported("insertText")) {
+		document.execCommand("insertText", false, text);
+	} else {
+		document.execCommand("paste", false, text);
 	}
 });
 
 $(document).on("click", ".button__close", function () {
 	toggleOverlay("off");
 });
-
-//! keyboard input end here
 
 function setCurrentDate() {
 	let currentDate = moment().isoWeek(week).format("[Week] W, YYYY");
@@ -123,8 +217,8 @@ function generateWeek(monday) {
 function checkToday() {
 	if (!$(`.day[data-day-id="${today}"]`).find(".day__badges").children(".day__today").length) {
 		$(`.day[data-day-id="${today}"]`).find(".day__badges").prepend(`
-			<span class="day__weather" data-html2canvas-ignore>Check weather</span>
-			<span class="day__today" data-html2canvas-ignore>Today</span>`);
+			<span class="day__weather">${windowWidth > touchBreakpoint ? "Check weather" : "Weather"}</span>
+			<span class="day__today">Today</span>`);
 	}
 	todayIndex = $(".day__today").parents().eq(2).index();
 }
@@ -144,9 +238,59 @@ function checkIfCurrentWeek() {
 	if ($(".day__today").length) {
 		$("#today").addClass("hidden");
 	} else {
-		$("#today").removeClass("hidden");
+		$(".touch-nav").hasClass("hidden") && $("#today").removeClass("hidden");
 	}
 }
+let touchBreakpoint = 900;
+let windowWidth = window.innerWidth;
+$(".touch-nav").toggleClass("hidden", windowWidth > touchBreakpoint);
+$("#prev,#next").toggleClass("hidden", windowWidth < touchBreakpoint);
+
+$(window).resize(function () {
+	windowWidth = window.innerWidth;
+	if (windowWidth > touchBreakpoint) {
+		$(".touch-nav").addClass("hidden");
+		$("#prev,#next").removeClass("hidden");
+		$(".day__weather").text("Check weather");
+		if (!$(".day__today").length) {
+			$("#today").removeClass("hidden");
+		}
+	} else {
+		$(".touch-nav").removeClass("hidden");
+		$("#prev,#next").addClass("hidden");
+		$(".day__weather").text("Weather");
+		if (!$(".day__today").length) {
+			$("#today").addClass("hidden");
+		}
+	}
+});
+
+$(".touch-nav .button").click(function () {
+	switch ($(this).attr("id")) {
+		case "touch-next":
+			week++;
+			setCurrentDate();
+			generateWeek((currentMonday += 7));
+			break;
+		case "touch-prev":
+			week--;
+			setCurrentDate();
+			generateWeek((currentMonday -= 7));
+			break;
+		default:
+			if (!$(".day__today").length) {
+				week = moment().isoWeek();
+				currentMonday = 1;
+				setCurrentDate();
+				generateWeek(currentMonday);
+				$("html").scrollTop($(".day__today").offset().top - 150);
+			} else {
+				$("html").scrollTop($(".day__today").offset().top - 150);
+			}
+			break;
+	}
+	checkIfCurrentWeek();
+});
 
 $(document).on("mouseenter", ".day", function () {
 	$(this).find(".add-task").removeClass("hidden");
@@ -159,11 +303,18 @@ $(document).on("mouseleave", ".day", function () {
 function toggleOverlay(condition) {
 	switch (condition) {
 		case "on":
+			$("body").addClass("overflow-hidden");
 			overlay.removeClass("hidden");
+			$(".overlay").scrollTop(0);
+			$(".touch-nav").addClass("hidden");
 			break;
 		case "off":
 			overlay.addClass("hidden");
+			$("body").removeClass("overflow-hidden");
 			overlay.children().remove();
+			if (windowWidth < touchBreakpoint) {
+				$(".touch-nav").removeClass("hidden");
+			}
 			break;
 	}
 }
@@ -202,51 +353,6 @@ function setGreeting() {
 		clockGreeting.text(`Good evening, ${greetingName}!`);
 	}
 }
-
-function loadSettings() {
-	$(".button--setting").addClass("button--off");
-	for (const [key, value] of Object.entries(userObject.settings)) {
-		$(`.settings__group[data-setting="${key}"]`).find(`.button[data-option="${value}"]`).removeClass("button--off");
-	}
-	$("#personal-name").text(userObject.name.long);
-	$("#personal-email").text(userObject.email);
-	$("#personal-provider").text(userObject.provider);
-}
-
-function applySettings() {
-	switch (userObject.settings.name) {
-		case "short":
-			greetingName = userObject.name.short;
-			break;
-		case "long":
-			greetingName = userObject.name.long;
-			break;
-		case "email":
-			greetingName = userObject.email;
-			break;
-	}
-	switch (userObject.settings.theme) {
-		case "light":
-			$("body").removeClass("dark-theme");
-			break;
-		case "dark":
-			$("body").addClass("dark-theme");
-			break;
-	}
-	switch (userObject.settings.showSomeday) {
-		case "show":
-			$(".day.someday").attr("class", "day someday");
-			break;
-		case "hide":
-			$(".day.someday").attr("class", "day someday hidden");
-			break;
-		case "transparent":
-			$(".day.someday").attr("class", "day someday transparent");
-			break;
-	}
-	setGreeting();
-}
-
 function checkTasksLength() {
 	$(".day").each(function () {
 		let totalTasks = $(this).find(".task").length - $(this).find(".task.completed").length;
@@ -285,60 +391,42 @@ $(document).on("click", "#google-sign-in", function () {
 	});
 });
 
-$(document).on("click", "#sign-out", function () {
-	$("body").removeClass("dark-theme");
-	toggleOverlay("off");
-	$(".week").children().remove();
+$(document).on("click", ".sign-out", function () {
 	auth.signOut();
-	unsubscribeFromPreviousWeek();
-	unsubscribeFromRepeats();
-	unsubscribeFromSomeday();
 });
-
-let userRef, userObject;
 
 auth.onAuthStateChanged(function (user) {
 	if (user) {
-		userRef = db
-			.collection("users")
-			.doc(auth.currentUser.uid)
-			.get()
-			.then((doc) => {
-				userObject = {
-					name: {
-						long: doc.data().details.longName,
-						short: doc.data().details.shortName,
-					},
-					email: doc.data().details.email,
-					provider: doc.data().details.provider,
-					settings: {
-						name: doc.data().settings.name,
-						theme: doc.data().settings.theme,
-						showSomeday: doc.data().settings.showSomeday,
-					},
-				};
-			})
-			.then(() => {
-				setCurrentTime();
-				setCurrentDate();
-				toggleOverlay("off");
-				overlay.removeClass("overlay--sign-up");
-				$(".clock").removeClass("hidden");
-				renderSomedayTasks();
-				generateWeek(currentMonday);
-				getReminders();
-				subscribeToRepeatedTasks();
-				applySettings();
-				setTimeout(function () {
-					checkReminders();
-					setGreeting();
-					setInterval(function () {
-						checkReminders();
-						setGreeting();
-					}, 60000);
-				}, remainingMinute);
-			});
+		$(".loading").removeClass("hidden");
+		setCurrentTime();
+		setCurrentDate();
+		toggleOverlay("off");
+		overlay.removeClass("overlay--sign-up");
+		$(".clock").removeClass("hidden");
+		renderSomedayTasks();
+		generateWeek(currentMonday);
+		getReminders();
+		subscribeToRepeatedTasks();
+		subscribeToSettings();
+		setTimeout(function () {
+			checkReminders();
+			setGreeting();
+			setInterval(function () {
+				checkReminders();
+				setGreeting();
+			}, 60000);
+		}, remainingMinute);
 	} else {
+		$(".loading").remove();
+		unsubscribeFromPreviousWeek && unsubscribeFromPreviousWeek();
+		unsubscribeFromRepeats && unsubscribeFromRepeats();
+		unsubscribeFromSomeday && unsubscribeFromSomeday();
+		unsubscribeFromSettings && unsubscribeFromSettings();
+		$("body").removeClass("dark-theme");
+		toggleOverlay("off");
+		$(".clock").addClass("hidden");
+		$(".week").children().remove();
+		$("body").removeClass("dark-theme");
 		toggleOverlay("on");
 		overlay.addClass("overlay--sign-up");
 		overlay.append(signUp);
@@ -362,12 +450,11 @@ function renderTasks() {
 							case "added":
 								let task = `
 									<div class="${change.doc.data().completed ? "task completed" : "task"}" data-task-id="${change.doc.id}">
-										<div class="task__text">
-											<span>${change.doc.data().title}</span>
-										</div>
+										<div class="task__text"><span></span></div>
 										<div class="task__time">${change.doc.data().time}</div>
 									</div>`;
 								$(`.day[data-day-id="${currentDay}"]`).find(".day__tasks-wrapper").prepend(task);
+								$(`.task[data-task-id="${change.doc.id}"]`).find(".task__text span").text(change.doc.data().title);
 								break;
 							case "removed":
 								$(`.task[data-task-id="${change.doc.id}"]`).not(".repeated").remove();
@@ -405,8 +492,6 @@ $(document).on("click", ".day__tasks-wrapper > *", function () {
 		time: true,
 		timePattern: ["h", "m"],
 	});
-
-	autosize($("textarea"));
 });
 
 $(document).on("click", ".add-task", function () {
@@ -441,6 +526,7 @@ $(document).on("keyup keydown click", ".create-task", function () {
 		$(".reminder-wrap").addClass("hidden");
 		$(".button--reminder").addClass("button--off").attr("data-reminder", "false").text("off");
 	}
+	autosize($("textarea"));
 });
 
 $(document).on("click", ".button--reminder", function () {
@@ -579,7 +665,7 @@ $(document).on("click", "#accept", function () {
 
 let taskWeek, taskDay, taskId, taskText, pathToTask;
 
-$(document).on("click contextmenu", ".task", function () {
+$(document).on("click contextmenu taphold", ".task", function () {
 	taskWeek = $(".week").attr("data-week-id");
 	taskDay = $(this).parents().eq(2).attr("data-day-id");
 	taskId = $(this).attr("data-task-id");
@@ -622,7 +708,7 @@ $(document).on("click", ".task", function () {
 					$(".reminder-wrap").removeClass("hidden");
 				}
 				if (doc.data().reminder) {
-					$(".button--reminder").removeClass("button--off").attr("data-reminder", "true").text("ON");
+					$(".button--reminder").removeClass("button--off").attr("data-reminder", "true").text("On");
 				}
 				if (doc.data().repeats !== undefined && doc.data().repeats.length > 0) {
 					repeatedDays = doc.data().repeats;
@@ -632,12 +718,13 @@ $(document).on("click", ".task", function () {
 							.removeClass("button--off");
 					}
 				}
+				autosize($("textarea"));
 			}
 		});
 });
 
 // * experimenting
-$(document).on("contextmenu", ".task", function (event) {
+$(document).on("contextmenu taphold", ".task", function (event) {
 	event.preventDefault();
 
 	let taskDate = $(this).parents().eq(2).find(".day__head .day__date").text();
@@ -659,6 +746,10 @@ $(document).on("contextmenu", ".task", function (event) {
 	if ($(this).hasClass("completed")) {
 		$("#complete-task").text("Uncomplete task");
 	}
+});
+
+$(document).on("taphold", ".test", function (event) {
+	$(event.target).addClass("taphold");
 });
 
 $(document).on("click", ".task-options__option", function () {
@@ -757,12 +848,11 @@ function renderSomedayTasks() {
 					case "added":
 						let task = `
 							<div class="someday ${change.doc.data().completed ? "task completed" : "task"}" data-task-id="${change.doc.id}">
-								<div class="task__text">
-									<span>${change.doc.data().title}</span>
-								</div>
+								<div class="task__text"><span></span></div>
 							</div>
 						`;
 						$(`.day[data-day-id="someday"]`).find(".day__tasks-wrapper").prepend(task);
+						$(`.task[data-task-id="${change.doc.id}"]`).find(".task__text span").text(change.doc.data().title);
 						break;
 					case "removed":
 						$(`.task[data-task-id="${change.doc.id}"]`).remove();
@@ -823,9 +913,7 @@ function renderRepeatedTasks() {
 						let task = `
 							<div class="repeated ${doc.data().completedArray.includes($(".day").eq(doc.data().repeats[i]).attr("data-day-id")) ? "task completed" : "task"}" data-task-id="${doc.id}">
 								<div class="task__text">
-									<img src="assets/img/repeat.svg" title="This is a repeated task!">
-									<span>${doc.data().title}</span>
-								</div>
+									<img src="assets/img/repeat.svg" title="This is a repeated task!"><span></span></div>
 								<div class="task__time">${doc.data().time}</div>
 							</div>
 						`;
@@ -838,9 +926,7 @@ function renderRepeatedTasks() {
 					}
 					let rootRepeatedTask = `
 						<div class="root-repeated repeated ${doc.data().completedArray.includes(doc.data().origin.day) ? "task completed" : "task"}" data-task-id="${doc.id}">
-							<div class="task__text">
-								<span>${doc.data().title}</span>
-							</div>
+							<div class="task__text"><span></span></div>
 							<div class="task__time">${doc.data().time}</div>
 						</div>
 					`;
@@ -848,6 +934,8 @@ function renderRepeatedTasks() {
 					if ($(`.day[data-day-id="${doc.data().origin.day}"]`).length) {
 						$(`.day[data-day-id="${doc.data().origin.day}"]`).find(".day__tasks-wrapper").prepend(rootRepeatedTask);
 					}
+
+					$(`.task[data-task-id="${doc.id}"]`).find(".task__text span").text(doc.data().title);
 				}
 				checkTasksLength();
 			});
@@ -930,6 +1018,7 @@ calendarControls.click(function () {
 		case "settings":
 			toggleOverlay("on");
 			overlay.append(settingsDialog);
+			// $(".settings__section").removeClass("hidden");
 			loadSettings();
 			break;
 		default:
@@ -942,6 +1031,7 @@ calendarControls.click(function () {
 	checkIfCurrentWeek();
 });
 
+//! rewrite this
 $(window).scroll(function () {
 	let windowTop = document.querySelector(".clock").getBoundingClientRect().top + window.scrollY;
 	if (windowTop > 30) {
@@ -967,7 +1057,6 @@ $(document).on("click", ".button--setting", function () {
 	$(this).removeClass("button--off");
 	switch ($(this).parent(".settings__group").attr("data-setting")) {
 		case "name":
-			userObject.settings.name = selectedOption;
 			settingsRef.set(
 				{
 					settings: {
@@ -978,7 +1067,6 @@ $(document).on("click", ".button--setting", function () {
 			);
 			break;
 		case "theme":
-			userObject.settings.theme = selectedOption;
 			settingsRef.set(
 				{
 					settings: {
@@ -989,7 +1077,6 @@ $(document).on("click", ".button--setting", function () {
 			);
 			break;
 		case "showSomeday":
-			userObject.settings.showSomeday = selectedOption;
 			settingsRef.set(
 				{
 					settings: {
@@ -1000,7 +1087,6 @@ $(document).on("click", ".button--setting", function () {
 			);
 			break;
 	}
-	applySettings();
 });
 
 $("body").on("click", "#delete-user-account", function () {
@@ -1017,3 +1103,22 @@ $("body").on("click", "#delete-user-account", function () {
 		});
 	});
 });
+
+// prevent contextmenu
+function absorbEvent_(event) {
+	var e = event || window.event;
+	e.preventDefault && e.preventDefault();
+	e.stopPropagation && e.stopPropagation();
+	e.cancelBubble = true;
+	e.returnValue = false;
+	return false;
+}
+
+function preventLongPressMenu(node) {
+	node.ontouchstart = absorbEvent_;
+	node.ontouchmove = absorbEvent_;
+	node.ontouchend = absorbEvent_;
+	node.ontouchcancel = absorbEvent_;
+}
+
+preventLongPressMenu($(".task"));

@@ -24,11 +24,14 @@
 		opacity: 0.5;
 	}
 	&__text {
-		display: flex;
-		align-items: center;
+		width: 80%;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
 		img {
+			display: inline-block;
 			height: 15px;
-			margin-right: 5px;
+			margin: 0 5px -2px 0;
 			opacity: 0.4;
 		}
 	}

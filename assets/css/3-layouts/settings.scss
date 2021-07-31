@@ -1,5 +1,5 @@
 .settings {
-	width: 550px;
+	max-width: 550px;
 	height: 350px;
 	display: grid;
 	grid-template-columns: 135px 1fr;
@@ -49,6 +49,22 @@
 		&.active {
 			background-color: var(--task-hover);
 			box-shadow: -15px 0 0 1px var(--task-hover), 15px 0 0 1px var(--task-hover);
+		}
+	}
+	&__group-title {
+		display: none;
+		color: var(--accent);
+		width: 100%;
+		background-color: var(--task-hover);
+		padding: 15px;
+		border-radius: 2px;
+		margin-bottom: 20px;
+	}
+	#mobile-signout {
+		margin: 0;
+		& > span {
+			margin: 0;
+			cursor: pointer;
 		}
 	}
 }

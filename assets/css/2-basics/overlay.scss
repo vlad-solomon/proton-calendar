@@ -2,17 +2,19 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	overflow: auto;
 	position: fixed;
 	top: 0;
 	left: 0;
 	height: 100%;
 	width: 100%;
-	padding-top: 90px;
-	z-index: 1;
+	padding: 90px 0;
+	z-index: 2;
 	background-color: rgba(255, 255, 255, 0.4);
 	backdrop-filter: blur(10px);
 	&--sign-up {
-		flex-direction: row;
+		display: block;
+		// flex-direction: row;
 		padding: 15px;
 		background-color: rgba(240, 240, 240, 0.4);
 	}
@@ -22,6 +24,7 @@
 		font-size: 3rem;
 		font-family: "SF Bold";
 		margin-bottom: 40px;
+		text-align: center;
 	}
 	&__warning {
 		@extend .card;

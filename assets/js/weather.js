@@ -18,8 +18,6 @@ function getWeather() {
 			fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${config.lat}&lon=${config.long}&exclude=${config.exclude}&units=metric&appid=${config.key}`)
 				.then((response) => response.json())
 				.then((data) => {
-					$(".weather").text("");
-					$(".weather").css("grid-template-columns", "repeat(6, 1fr)");
 					for (i = 0; i < 24; i += 2) {
 						let temp = {
 							metric: `${Math.ceil(data.hourly[i].temp)}°C`,
@@ -34,14 +32,21 @@ function getWeather() {
 
 						let card = `
 							<div class="card">
-								<span class="card__text">
+								<span class="card__text card__text--temperature">
 									${temp.metric}
 									<div class="horiz-line"></div>
 									${temp.imperial}
 								</span>
 								<img class="icon" src="assets/img/weather/${icon}.svg" alt="${description}">
-								<span class="card__text card__text--description">${description}</span>
-								<span class="card__text">${time.from}<div class="horiz-line"></div>${time.to}</span>
+								<div class="mobile-wrap">
+									<span class="card__text card__text--description">${description}</span>
+									<span class="card__text card__text--temperature-mobile">
+										${temp.metric}
+										<div class="horiz-line"></div>
+										${temp.imperial}
+									</span>
+								</div>
+								<span class="card__text card__text--time">${time.from}<div class="horiz-line"></div>${time.to}</span>
 							</div>
 						`;
 
@@ -55,9 +60,9 @@ function getWeather() {
 }
 
 $(document).on("click", ".day__weather", function () {
+	getWeather();
 	toggleOverlay("on");
 	overlay.append(weatherDialog);
-	getWeather();
 });
 
 $(document).on("click", "#cancel-weather", function () {

@@ -10,6 +10,17 @@
 	cursor: pointer;
 	border-radius: 25px;
 	flex-shrink: 0;
+	* {
+		&::selection {
+			background-color: transparent;
+		}
+	}
+	&:hover {
+		opacity: 0.9;
+	}
+	&:active {
+		opacity: 0.5;
+	}
 	&--text {
 		font-family: "SF Bold";
 		padding: 0 30px;

@@ -1,5 +1,6 @@
 .card {
-	width: 410px;
+	max-width: 410px;
+	width: 100%;
 	background-color: var(--alternate);
 	margin-bottom: 40px;
 	border-radius: 2px;
@@ -11,6 +12,5 @@
 		font-size: 0.875rem;
 		color: var(--accent);
 		opacity: 0.5;
-		// color: rgba(0, 0, 0, 0.5);
 	}
 }

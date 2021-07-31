@@ -1,0 +1,17 @@
+.touch-nav {
+	position: fixed;
+	bottom: 0;
+	background-color: var(--alternate);
+	display: flex;
+	border-radius: 2px 2px 0 0;
+	padding: 15px;
+	box-shadow: var(--drop-shadow);
+	left: 50%;
+	transform: translateX(-50%);
+	.button {
+		position: relative;
+		&:not(:last-of-type) {
+			margin-right: 20px;
+		}
+	}
+}

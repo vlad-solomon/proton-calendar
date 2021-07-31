@@ -4,7 +4,8 @@
 	gap: 15px;
 	grid-template-areas:
 		"cell1 cell1"
-		"cell2 cell3";
+		"cell2 cell3"
+		"cell4 cell3";
 	&__buttons {
 		display: flex;
 		* {
@@ -12,8 +13,12 @@
 		}
 	}
 	.cell {
+		// outline: 1px dashed red;
 		&.cell3 {
 			width: 95px;
+		}
+		&.cell4 {
+			margin-top: -15px;
 		}
 		&__title {
 			@extend .card__title;
@@ -82,11 +87,11 @@
 			#task-description {
 				margin: 0;
 			}
-			.week-days {
-				display: none;
-			}
 		}
 		.cell3 {
+			display: none !important;
+		}
+		.cell4 {
 			display: none;
 		}
 	}

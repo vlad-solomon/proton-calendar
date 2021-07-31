@@ -4,32 +4,50 @@
 		<meta charset="UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta charset="UTF-8" />
 		<title>Proton</title>
 		<link rel="stylesheet" href="assets/css/main.css" />
-		<!-- !REMOVE HEAD STYLE -->
-		<style>
-			/* body {
-				background-color: #000;
-			}
-			.page-content {
-				background-color: #fff;
-			}
-			body {
-				filter: invert(100%);
-			} */
-
-			/* .repeated {
-				border: 1px solid red;
-			}
-			.root-repeated {
-				border: 1px dashed blue;
-			}
-			.task.someday {
-				border: 1px solid green;
-			} */
-		</style>
+		<link rel="apple-touch-icon" sizes="180x180" href="assets/img/favicon/apple-touch-icon.png" />
+		<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon/favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon/favicon-16x16.png" />
+		<link rel="manifest" href="assets/img/favicon/site.webmanifest" />
+		<link rel="mask-icon" href="assets/img/favicon/safari-pinned-tab.svg" color="#5bbad5" />
+		<link rel="shortcut icon" href="assets/img/favicon/favicon.ico" />
+		<meta name="msapplication-TileColor" content="#ffffff" />
+		<meta name="msapplication-config" content="assets/img/favicon/browserconfig.xml" />
+		<meta name="theme-color" content="#ffffff" />
+		<link rel="preload" href="/assets/fonts/SF-Pro-Display-Regular.otf" as="font" crossorigin />
+		<link rel="preload" href="/assets/fonts/SF-Pro-Display-Bold.otf" as="font" crossorigin />
+		<!-- Primary Meta Tags -->
+		<title>Proton Calendar</title>
+		<meta
+			name="description"
+			content="Proton is your key to staying organized. Add, modify, delete, even make recursive tasks so you’ll keep your schedule tight, all for free,  no subscriptions."
+		/>
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="http://vlad-solomon.github.io/proton-calendar/" />
+		<meta property="og:title" content="Proton Calendar" />
+		<meta
+			property="og:description"
+			content="Proton is your key to staying organized. Add, modify, delete, even make recursive tasks so you’ll keep your schedule tight, all for free,  no subscriptions."
+		/>
+		<meta property="og:image" content="https://res.cloudinary.com/dbkhowucg/image/upload/v1627728340/proton_calendar/cover.png" />
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content="http://vlad-solomon.github.io/proton-calendar/" />
+		<meta property="twitter:title" content="Proton Calendar" />
+		<meta
+			property="twitter:description"
+			content="Proton is your key to staying organized. Add, modify, delete, even make recursive tasks so you’ll keep your schedule tight, all for free,  no subscriptions."
+		/>
+		<meta property="twitter:image" content="https://res.cloudinary.com/dbkhowucg/image/upload/v1627728340/proton_calendar/cover.png" />
 	</head>
 	<body>
+		<div class="loading hidden">
+			<img class="loading__logo" src="assets/img/loading-logo.svg" alt="logo" />
+			<span class="loading__details">V1.0.0 - Initial Release - July 2021</span>
+		</div>
 		<div class="overlay hidden"></div>
 		<div class="page-content">
 			<div class="clock hidden">
@@ -43,7 +61,12 @@
 					<div id="next" class="button"><img src="assets/img/next-week.svg" alt="next-week" /></div>
 				</div>
 			</div>
-			<div class="week" style="margin-bottom: 500px"></div>
+			<div class="week"></div>
+			<div class="touch-nav hidden">
+				<div class="button" id="touch-prev"><img src="assets/img/prev-week.svg" alt="prev-week" /></div>
+				<div class="button" id="mobile-today"><img src="assets/img/today.svg" alt="today" /></div>
+				<div class="button" id="touch-next"><img src="assets/img/next-week.svg" alt="next-week" /></div>
+			</div>
 		</div>
 		<audio id="reminder-notification" loop><source src="assets/sounds/notification.mp3" type="audio/mpeg" /></audio>
 		<!-- Firebase -->
@@ -68,6 +91,7 @@
 			integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
 			crossorigin="anonymous"
 		></script>
+		<script src="assets/js/jquery-custom/jquery.mobile.custom.min.js"></script>
 		<script src="https://momentjs.com/downloads/moment.js"></script>
 		<script
 			src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"
