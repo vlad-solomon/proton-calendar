@@ -54,6 +54,16 @@ function getWeather() {
 					}
 
 					$("#cancel-weather").removeClass("hidden");
+				})
+				.catch(function () {
+					let card = `
+						<div class="overlay__warning overlay__warning--weather">
+							<img src="assets/img/warning.svg" alt="warning">
+							<p>Looks like something went wrong!<br>Check you internet connection and try again later.</p>
+						</div>
+					`;
+					$(".overlay__heading").after(card);
+					$("#cancel-weather").removeClass("hidden");
 				});
 		});
 	}

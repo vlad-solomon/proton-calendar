@@ -161,11 +161,15 @@ body.dark-theme .day__tasks-wrapper {
 body.dark-theme img:not(.loading__logo) {
     filter: invert(100%);
 }
+body.dark-theme .touch-nav .button img, body.dark-theme .touch-nav .create-task .cell .week-days__button img, .create-task .cell body.dark-theme .touch-nav .week-days__button img, body.dark-theme .touch-nav #loading-icon img {
+    filter: none;
+}
 
 a {
     color: currentColor;
     text-decoration: none;
     font-family: "SF Bold";
+    white-space: nowrap;
 }
 a.no-after::after {
     display: none;
@@ -208,7 +212,6 @@ kbd {
     top: 0;
     position: sticky;
     color: var(--accent);
-    background-color: var(--alternate);
 }
 .clock * {
     display: block;
@@ -224,18 +227,21 @@ kbd {
     line-height: 90%;
 }
 .clock--sticky {
-    padding: 15px;
-    border-radius: 0 0 2px 2px;
-    box-shadow: var(--drop-shadow);
-    width: calc(100% + 30px);
-    margin-left: -15px;
+    padding: 15px 0;
     z-index: 1;
 }
 .clock--sticky .clock__greeting {
     display: none;
 }
-.clock--sticky .calendar-controls {
-    right: 15px;
+
+.gradient-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 125px;
+    width: 100%;
+    background: linear-gradient(180deg, var(--alternate) 65%, transparent 100%);
+    z-index: 1;
 }
 
 .day {
@@ -301,7 +307,8 @@ kbd {
 }
 .day__tasks-wrapper {
     min-height: 100%;
-    background-image: url("../img/divider.png");
+    display: flex;
+    flex-direction: column;
 }
 
 .task, .add-task {
@@ -311,6 +318,7 @@ kbd {
     height: 40px;
     font-size: 0.875rem;
     cursor: pointer;
+    order: 2;
 }
 .task:hover, .add-task:hover {
     background-color: var(--task-hover);
@@ -329,6 +337,9 @@ kbd {
     left: 0;
     width: 100%;
     border-bottom: 1px solid var(--accent);
+}
+.task.repeated, .repeated.add-task {
+    order: 1;
 }
 .task__text {
     width: 80%;
@@ -352,7 +363,7 @@ kbd {
     transform: scale(1.25);
 }
 
-.button, .create-task .cell .week-days__button {
+.button, .create-task .cell .week-days__button, #loading-icon {
     color: var(--alternate);
     display: flex;
     justify-content: center;
@@ -365,13 +376,13 @@ kbd {
     border-radius: 25px;
     flex-shrink: 0;
 }
-.button *::selection, .create-task .cell .week-days__button *::selection {
+.button *::selection, .create-task .cell .week-days__button *::selection, #loading-icon *::selection {
     background-color: transparent;
 }
-.button:hover, .create-task .cell .week-days__button:hover {
+.button:hover, .create-task .cell .week-days__button:hover, #loading-icon:hover {
     opacity: 0.9;
 }
-.button:active, .create-task .cell .week-days__button:active {
+.button:active, .create-task .cell .week-days__button:active, #loading-icon:active {
     opacity: 0.5;
 }
 .button--text {
@@ -385,7 +396,7 @@ kbd {
     padding: 0 15px;
     width: auto !important;
 }
-.button--alt {
+.button--alt, #loading-icon {
     background: transparent;
     border: 1px solid var(--accent);
 }
@@ -449,7 +460,7 @@ kbd {
     display: flex;
     transform: translateY(-50%);
 }
-.calendar-controls .button:not(:last-of-type), .calendar-controls .create-task .cell .week-days__button:not(:last-of-type), .create-task .cell .calendar-controls .week-days__button:not(:last-of-type) {
+.calendar-controls .button:not(:last-of-type), .calendar-controls .create-task .cell .week-days__button:not(:last-of-type), .create-task .cell .calendar-controls .week-days__button:not(:last-of-type), .calendar-controls #loading-icon:not(:last-of-type) {
     margin-right: 8px;
 }
 
@@ -498,6 +509,9 @@ kbd {
     height: 32px;
     margin-right: 15px;
 }
+.overlay__warning--weather {
+    margin: 0;
+}
 
 .reminder {
     padding-bottom: 5px;
@@ -513,7 +527,7 @@ kbd {
 }
 
 .task-options {
-    padding-bottom: 0px;
+    padding-bottom: 10px;
     overflow: hidden;
 }
 .task-options .card__title, .task-options .settings__title, .task-options .create-task .cell__title, .create-task .task-options .cell__title, .task-options .input__title {
@@ -527,7 +541,24 @@ kbd {
     box-shadow: -15px 0 0 1px var(--task-hover), 15px 0 0 1px var(--task-hover);
 }
 
+#loading-icon {
+    pointer-events: none;
+    color: red;
+}
+#loading-icon img {
+    animation: load 2s infinite linear;
+}
+@keyframes load {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 .week {
+    visibility: hidden;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
@@ -543,6 +574,9 @@ kbd {
 .week__watermark--small {
     opacity: 0.2;
     font-size: 0.875rem;
+}
+.week.loaded {
+    visibility: visible;
 }
 
 .create-task {
@@ -624,9 +658,6 @@ kbd {
 .create-task.someday {
     grid-template-areas: "cell1" "cell2";
 }
-.create-task.someday .cell2 .cell__title:last-of-type {
-    display: none;
-}
 .create-task.someday .cell2 #task-description {
     margin: 0;
 }
@@ -649,7 +680,7 @@ kbd {
     background-color: var(--alternate);
     box-shadow: var(--drop-shadow);
 }
-.share__options .button, .share__options .create-task .cell .week-days__button, .create-task .cell .share__options .week-days__button {
+.share__options .button, .share__options #loading-icon, .share__options .create-task .cell .week-days__button, .create-task .cell .share__options .week-days__button {
     font-size: 0.875rem;
     height: 35px;
     width: 35px;
@@ -667,7 +698,7 @@ kbd {
 .share__buttons {
     display: flex;
 }
-.share__buttons .button, .share__buttons .create-task .cell .week-days__button, .create-task .cell .share__buttons .week-days__button {
+.share__buttons .button, .share__buttons #loading-icon, .share__buttons .create-task .cell .week-days__button, .create-task .cell .share__buttons .week-days__button {
     margin: 0 10px;
 }
 
@@ -699,7 +730,7 @@ kbd {
 .sign-up__blurb:last-of-type {
     margin: 10px 0 50px 0;
 }
-.sign-up .button, .sign-up .create-task .cell .week-days__button, .create-task .cell .sign-up .week-days__button,
+.sign-up .button, .sign-up #loading-icon, .sign-up .create-task .cell .week-days__button, .create-task .cell .sign-up .week-days__button,
 .sign-up .input__text {
     width: 50%;
     margin-bottom: 30px;
@@ -796,6 +827,9 @@ kbd {
 .settings__text strong {
     font-family: "SF Bold";
 }
+.settings__text #personal-provider {
+    text-transform: capitalize;
+}
 .settings__option {
     cursor: pointer;
     padding: 10px 0;
@@ -821,14 +855,16 @@ kbd {
     background-color: var(--task-hover);
     padding: 15px;
     border-radius: 2px;
-    margin-bottom: 20px;
 }
 .settings #mobile-signout {
     margin: 0;
+    cursor: pointer;
 }
 .settings #mobile-signout > span {
     margin: 0;
-    cursor: pointer;
+}
+.settings .mobile-drawer {
+    margin-top: 20px;
 }
 
 .loading {
@@ -837,7 +873,7 @@ kbd {
     left: 0;
     bottom: 0;
     right: 0;
-    z-index: 1;
+    z-index: 999;
     height: 100%;
     width: 100%;
     display: flex;
@@ -857,19 +893,22 @@ kbd {
 .touch-nav {
     position: fixed;
     bottom: 0;
-    background-color: var(--alternate);
+    left: 0;
     display: flex;
-    border-radius: 2px 2px 0 0;
+    justify-content: center;
+    width: 100%;
     padding: 15px;
-    box-shadow: var(--drop-shadow);
-    left: 50%;
-    transform: translateX(-50%);
+    background: linear-gradient(0deg, var(--alternate), transparent);
 }
-.touch-nav .button, .touch-nav .create-task .cell .week-days__button, .create-task .cell .touch-nav .week-days__button {
+.touch-nav .button, .touch-nav #loading-icon, .touch-nav .create-task .cell .week-days__button, .create-task .cell .touch-nav .week-days__button {
+    background: none;
     position: relative;
 }
-.touch-nav .button:not(:last-of-type), .touch-nav .create-task .cell .week-days__button:not(:last-of-type), .create-task .cell .touch-nav .week-days__button:not(:last-of-type) {
-    margin-right: 20px;
+.touch-nav .button:not(:last-of-type), .touch-nav #loading-icon:not(:last-of-type), .touch-nav .create-task .cell .week-days__button:not(:last-of-type), .create-task .cell .touch-nav .week-days__button:not(:last-of-type) {
+    margin-right: 70px;
+}
+.touch-nav .button img, .touch-nav #loading-icon img, .touch-nav .create-task .cell .week-days__button img, .create-task .cell .touch-nav .week-days__button img {
+    filter: invert(100%);
 }
 
 @media (max-width: 1880px) {
@@ -913,7 +952,8 @@ kbd {
         margin: 5px 0;
     }
 
-    #settings {
+    #settings,
+#loading-icon {
         height: 40px;
         width: 40px;
         margin: 0;
@@ -991,11 +1031,14 @@ kbd {
     }
 }
 @media (max-width: 640px) {
+    .overlay {
+        padding: 90px 4px;
+    }
+
     .settings {
         display: block;
         height: auto;
         padding: 15px;
-        max-width: 410px;
     }
     .settings__sidebar {
         display: none;
@@ -1005,12 +1048,21 @@ kbd {
         margin-bottom: 20px;
         padding: 0;
     }
+    .settings__group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
     .settings__group-title {
         display: block;
     }
 
     .button--setting, .button--warning {
         display: flex;
+        margin: 0;
+    }
+    .button--warning {
+        margin-top: 10px;
     }
 }
 @media (max-width: 500px) {
@@ -1069,6 +1121,18 @@ kbd {
         font-size: 1rem;
     }
 
+    .task-options {
+        order: 2;
+        margin-bottom: -36px;
+        max-width: unset;
+    }
+
+    #close-task-options-dialog {
+        order: 1;
+        margin-top: auto;
+        margin-bottom: 40px;
+    }
+
     .create-task .cell1 {
         -ms-grid-row: 1;
         -ms-grid-column: 1;
@@ -1092,6 +1156,10 @@ kbd {
     }
     .sign-up #google-sign-in {
         text-align: center;
+    }
+
+    .settings__group {
+        grid-template-columns: 1fr;
     }
 }
 @media (hover: none) {

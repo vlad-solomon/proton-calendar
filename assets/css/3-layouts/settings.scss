@@ -32,6 +32,9 @@
 		strong {
 			font-family: "SF Bold";
 		}
+		#personal-provider {
+			text-transform: capitalize;
+		}
 	}
 	&__option {
 		cursor: pointer;
@@ -58,13 +61,15 @@
 		background-color: var(--task-hover);
 		padding: 15px;
 		border-radius: 2px;
-		margin-bottom: 20px;
 	}
 	#mobile-signout {
 		margin: 0;
+		cursor: pointer;
 		& > span {
 			margin: 0;
-			cursor: pointer;
 		}
+	}
+	.mobile-drawer {
+		margin-top: 20px;
 	}
 }

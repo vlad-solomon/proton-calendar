@@ -45,7 +45,8 @@
 			margin: 5px 0;
 		}
 	}
-	#settings {
+	#settings,
+	#loading-icon {
 		height: 40px;
 		width: 40px;
 		margin: 0;
@@ -125,11 +126,13 @@
 }
 
 @media (max-width: 640px) {
+	.overlay {
+		padding: 90px 4px;
+	}
 	.settings {
 		display: block;
 		height: auto;
 		padding: 15px;
-		max-width: 410px;
 		&__sidebar {
 			display: none;
 		}
@@ -137,6 +140,11 @@
 			display: block !important;
 			margin-bottom: 20px;
 			padding: 0;
+		}
+		&__group {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 10px;
 		}
 		&__group-title {
 			display: block;
@@ -146,6 +154,10 @@
 		&--setting,
 		&--warning {
 			display: flex;
+			margin: 0;
+		}
+		&--warning {
+			margin-top: 10px;
 		}
 	}
 }
@@ -208,6 +220,16 @@
 			font-size: 1rem;
 		}
 	}
+	.task-options {
+		order: 2;
+		margin-bottom: -36px;
+		max-width: unset;
+	}
+	#close-task-options-dialog {
+		order: 1;
+		margin-top: auto;
+		margin-bottom: 40px;
+	}
 }
 
 @media (max-width: 375px) {
@@ -216,6 +238,9 @@
 		#google-sign-in {
 			text-align: center;
 		}
+	}
+	.settings__group {
+		grid-template-columns: 1fr;
 	}
 }
 

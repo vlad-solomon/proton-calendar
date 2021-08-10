@@ -1,3 +1,15 @@
+const version = {
+	release: "1.0.1",
+	date: "August 2021",
+};
+
+const loadingScreen = `
+	<div class="loading">
+		<img class="loading__logo" src="assets/img/loading-logo.svg" alt="logo" />
+		<span class="loading__details">V${version.release} - ${version.date}</span>
+	</div>
+`;
+
 const reminderDialog = `
 	<div class="reminder card">
 		<span class="card__title"></span>
@@ -30,7 +42,7 @@ const signUp = `
 			<span>Designed & developed by <a href="https://github.com/vlad-solomon" target="_blank">Vlad Solomon</a></span>
 			<span><a href="https://github.com/vlad-solomon/proton-calendar/pulls" target="_blank">Want to help?</a></span>
 			<span>Proton Calendar ∣ ${moment().year()}</span>
-			<span>V1.0.0 - Alpha</span>
+			<span>V${version.release}</span>
 		</div>
 	</div>
 `;
@@ -95,74 +107,87 @@ const settingsDialog = `
 		</div>
 		<div class="settings__section" data-option="personalization">
 			<span class="settings__group-title">Personalization</span>
-			<span class="settings__title">Name</span>
-			<div class="settings__group" data-setting="name">
-				<div class="button button--setting button--off" data-option="short">Short</div>
-				<div class="button button--setting button--off" data-option="long">Long</div>
-				<div class="button button--setting button--off" data-option="email">Email</div>
-			</div>
-			<span class="settings__title">Theme</span>
-			<div class="settings__group" data-setting="theme">
-				<div class="button button--setting button--off" data-option="light">Light</div>
-				<div class="button button--setting button--off" data-option="dark">Dark</div>
-			</div>
-			<span class="settings__title">Show "Someday"</span>
-			<div class="settings__group" data-setting="showSomeday">
-				<div class="button button--setting button--off" data-option="show">Show</div>
-				<div class="button button--setting button--off" data-option="hide">Hide</div>
-				<div class="button button--setting button--off" data-option="transparent">Transparent</div>
+			<div class="mobile-drawer">
+				<span class="settings__title">Name</span>
+				<div class="settings__group" data-setting="name">
+					<div class="button button--setting button--off" data-option="short">Short</div>
+					<div class="button button--setting button--off" data-option="long">Long</div>
+					<div class="button button--setting button--off" data-option="email">Email</div>
+				</div>
+				<span class="settings__title">Theme</span>
+				<div class="settings__group" data-setting="theme">
+					<div class="button button--setting button--off" data-option="light">Light</div>
+					<div class="button button--setting button--off" data-option="dark">Dark</div>
+					<div class="button button--setting button--off" data-option="auto">Auto</div>
+				</div>
+				<span class="settings__title">Show "Someday"</span>
+				<div class="settings__group" data-setting="showSomeday">
+					<div class="button button--setting button--off" data-option="show">Show</div>
+					<div class="button button--setting button--off" data-option="hide">Hide</div>
+					<div class="button button--setting button--off" data-option="transparent">Transparent</div>
+				</div>
 			</div>
 		</div>
 		<div class="settings__section hidden" data-option="account">
 			<span class="settings__group-title">Accout</span>
-			<span class="settings__title">Personal information</span>
-			<span class="settings__text">Name <strong id="personal-name"></strong></span>
-			<span class="settings__text">Email <strong id="personal-email"></strong></span>
-			<span class="settings__text">Provider <strong id="personal-provider"></strong></span>
-			<span class="settings__title">Delete account</span>
-			<div class="settings__text">
-				To delete your Proton Calendar account, press the button below. Be careful, as
-				<strong>this action is permanent and cannot be undone</strong>. Note that your data will not be deleted immediately, but it will be unaccessible after this action is performed.
+			<div class="mobile-drawer">
+				<span class="settings__title">Personal information</span>
+				<span class="settings__text">Name <strong id="personal-name"></strong></span>
+				<span class="settings__text">Email <strong id="personal-email"></strong></span>
+				<span class="settings__text">Provider <strong id="personal-provider"></strong></span>
+				<span class="settings__title">Disable account</span>
+				<div class="settings__text">
+					To disable your Proton Calendar account, press the button below. Be careful, as
+					<strong>this action is permanent and cannot be undone</strong>. Note that your data will not be deleted immediately, but it will be unaccessible after this action is performed.
+				</div>
+				<div class="button button--warning" id="disable-user-account">Disable account</div>
 			</div>
-			<div class="button button--warning" id="delete-user-account">Delete account</div>
 		</div>
 		<div class="settings__section hidden" data-option="about">
 			<span class="settings__group-title">About</span>
-			<span class="settings__title">About Proton Calendar</span>
-			<span class="settings__text"
-				>Proton Calendar is a light-weight web application that syncs your data between all your devices. With it’s light and simple interface, Proton will help you plan your weeks from now
-				on. Add, modify, delete, even make recursive tasks so you’ll keep your schedule tight!</span
-			>
-			<span class="settings__title">About the project</span>
-			<div class="settings__text">
-				Proton Calendar is being designed & developed by <a href="https://github.com/vlad-solomon" class="no-after" target="_blank">Vlad Solomon</a> using Moment.js and Firebase. The project
-				is a public one, so anyone can help using the links below.
+			<div class="mobile-drawer">
+				<span class="settings__title">About Proton Calendar</span>
+				<span class="settings__text"
+					>Proton Calendar is a light-weight web application that syncs your data between all your devices. With it’s light and simple interface, Proton will help you plan your weeks from
+					now on. Add, modify, delete, even make recursive tasks so you’ll keep your schedule tight!</span
+				>
+				<span class="settings__title">About the project</span>
+				<div class="settings__text">
+					Proton Calendar is being designed & developed by <a href="https://github.com/vlad-solomon" class="no-after" target="_blank">Vlad Solomon</a> using Moment.js and Firebase. The
+					project is a public one, so anyone can help using the links below.
+				</div>
+				<div class="settings__text"><a href="https://github.com/vlad-solomon/proton-calendar" target="_blank">Github repo</a></div>
+				<div class="settings__text"><a href="https://github.com/vlad-solomon/proton-calendar/pulls" target="_blank">Create a pull request</a></div>
+				<div class="settings__text">
+					If you want to support the project monetarily, you can donate directly to me <a href="https://www.buymeacoffee.com/vladsolomon" target="_blank">here</a>
+				</div>
+				<span class="settings__title">Version info</span>
+				<div class="settings__text">V${version.release} - ${version.date}</div>
 			</div>
-			<div class="settings__text"><a href="https://github.com/vlad-solomon/proton-calendar" target="_blank">Github repo</a></div>
-			<div class="settings__text"><a href="https://github.com/vlad-solomon/proton-calendar/pulls" target="_blank">Create a pull request</a></div>
-			<div class="settings__text">If you want to support the project monetarily, you can donate directly to me <a href="https://www.buymeacoffee.com/vladsolomon" target="_blank">here</a></div>
-			<span class="settings__title">Version info</span>
-			<div class="settings__text">V1.0.0 - Initial release - July 2021</div>
 		</div>
 		<div class="settings__section hidden" data-option="faq">
-			<span class="settings__group-title">FAQ</span>
-			<span class="settings__title">How do I complete or remove a task?</span>
-			<div class="settings__text">To complete or remove a task taphold or right click on it.</div>
-			<span class="settings__title">How do I edit an existing task?</span>
-			<div class="settings__text">Find the task you want to edit and click or tap on it and make any changes you would like to it.</div>
-			<span class="settings__title">How do I repeat a task?</span>
-			<div class="settings__text">When creating a task choose what days of the week you'll like the task to repeat on. To stop a task from being a repeated one unselect all the repeated days.</div>
-			<span class="settings__title">Does deleting the root of a repeated task delete all of its repeating children?</span>
-			<div class="settings__text">Yes. If you delete the original task, all its repeating children will also be removed.</div>
-			<span class="settings__title">Does Proton have keyboard shortcuts?</span>
-			<div class="settings__text">If you're on a device that supports keyboard inputs, you can use the shortcuts below to navigate Proton Calendar faster:</div>
-			<div class="settings__text">Press <kbd>&larr;</kbd> or <kbd>&rarr;</kbd> to navigate backwards or forwards between weeks.</div>
-			<div class="settings__text">Press <kbd>T</kbd> to jump to today.</div>
-			<div class="settings__text">Press <kbd>W</kbd> to get the weather forecast.</div>
-			<div class="settings__text">Press <kbd>Return</kbd> to apply any changes you've made.</div>
-			<div class="settings__text">Press <kbd>Esc</kbd> to exit out of any dialog.</div>
-			<span class="settings__title">Will Proton Calendar be free for everyone?</span>
-			<div class="settings__text">Always and forever!</div>
+			<span class="settings__group-title">Frequently asked questions</span>
+			<div class="mobile-drawer">
+				<span class="settings__title">How do I complete or remove a task?</span>
+				<div class="settings__text">To complete or remove a task taphold or right click on it.</div>
+				<span class="settings__title">How do I edit an existing task?</span>
+				<div class="settings__text">Find the task you want to edit and click or tap on it and make any changes you would like to it.</div>
+				<span class="settings__title">How do I repeat a task?</span>
+				<div class="settings__text">
+					When creating a task choose what days of the week you'll like the task to repeat on. To stop a task from being a repeated one unselect all the repeated days.
+				</div>
+				<span class="settings__title">Does deleting the root of a repeated task delete all of its repeating children?</span>
+				<div class="settings__text">Yes. If you delete the original task, all its repeating children will also be removed.</div>
+				<span class="settings__title">Does Proton have keyboard shortcuts?</span>
+				<div class="settings__text">If you're on a device that supports keyboard inputs, you can use the shortcuts below to navigate Proton Calendar faster:</div>
+				<div class="settings__text">Press <kbd>&larr;</kbd> or <kbd>&rarr;</kbd> to navigate backwards or forwards between weeks.</div>
+				<div class="settings__text">Press <kbd>T</kbd> to jump to today.</div>
+				<div class="settings__text">Press <kbd>W</kbd> to get the weather forecast.</div>
+				<div class="settings__text">Press <kbd>Return</kbd> to apply any changes you've made.</div>
+				<div class="settings__text">Press <kbd>Esc</kbd> to exit out of any dialog.</div>
+				<span class="settings__title">Will Proton Calendar be free for everyone?</span>
+				<div class="settings__text">Always and forever!</div>
+			</div>
 		</div>
 		<div class="settings__section" id="mobile-signout">
 			<span class="settings__group-title sign-out">Sign out</span>

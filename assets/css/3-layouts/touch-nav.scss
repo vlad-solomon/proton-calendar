@@ -1,17 +1,20 @@
 .touch-nav {
 	position: fixed;
 	bottom: 0;
-	background-color: var(--alternate);
+	left: 0;
 	display: flex;
-	border-radius: 2px 2px 0 0;
+	justify-content: center;
+	width: 100%;
 	padding: 15px;
-	box-shadow: var(--drop-shadow);
-	left: 50%;
-	transform: translateX(-50%);
+	background: linear-gradient(0deg, var(--alternate), transparent);
 	.button {
+		background: none;
 		position: relative;
 		&:not(:last-of-type) {
-			margin-right: 20px;
+			margin-right: 70px;
+		}
+		img {
+			filter: invert(100%);
 		}
 	}
 }

@@ -4,17 +4,38 @@ const clockDate = $(".clock__date");
 const calendarControls = $(".calendar-controls .button");
 const overlay = $(".overlay");
 
+$("body").prepend(loadingScreen);
+
 $(document).on("contextmenu", overlay, function (event) {
-	event.preventDefault();
+	if (!$(event.target).is("textarea, input")) {
+		event.preventDefault();
+	}
 });
+
 $.event.special.tap.tapholdThreshold = 250;
 
 let db = firebase.firestore();
 let auth = firebase.auth();
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
+// firebase
+// 	.firestore()
+// 	.enablePersistence()
+// 	.catch((err) => {
+// 		if (err.code == "failed-precondition") {
+// 			// Multiple tabs open, persistence can only be enabled
+// 			// in one tab at a a time.
+// 			// ...
+// 		} else if (err.code == "unimplemented") {
+// 			// The current browser does not support all of the
+// 			// features required to enable persistence
+// 			// ...
+// 		}
+// 	});
 let unsubscribe, unsubscribeFromSomeday, unsubscribeFromRepeats, unsubscribeFromSettings;
 let unsubscribeArray = [];
+
+let userAutoTheme = false;
 
 function subscribeToSettings() {
 	unsubscribeFromSettings = db
@@ -35,10 +56,17 @@ function subscribeToSettings() {
 			switch (doc.data().settings.theme) {
 				case "light":
 					$("body").removeClass("dark-theme");
+					$(".day__tasks-wrapper").css("background-image", "url('assets/img/divider.png')");
+					userAutoTheme = false;
 					break;
 				case "dark":
 					$("body").addClass("dark-theme");
+					$(".day__tasks-wrapper").css("background-image", "url('assets/img/divider-dark.png')");
+					userAutoTheme = false;
 					break;
+				case "auto":
+					setAutoTheme();
+					userAutoTheme = true;
 			}
 			switch (doc.data().settings.showSomeday) {
 				case "show":
@@ -56,6 +84,16 @@ function subscribeToSettings() {
 		});
 }
 
+function setAutoTheme() {
+	if (hour >= 20 || hour < 8) {
+		$("body").addClass("dark-theme");
+		$(".day__tasks-wrapper").css("background-image", "url('assets/img/divider-dark.png')");
+	} else {
+		$("body").removeClass("dark-theme");
+		$(".day__tasks-wrapper").css("background-image", "url('assets/img/divider.png')");
+	}
+}
+
 function loadSettings() {
 	$(".button--setting").addClass("button--off");
 	db.collection("users")
@@ -67,7 +105,7 @@ function loadSettings() {
 			$(`.button--setting[data-option="${doc.data().settings.showSomeday}"]`).removeClass("button--off");
 			$("#personal-name").text(doc.data().details.longName);
 			$("#personal-email").text(doc.data().details.email);
-			$("#personal-provider").text(doc.data().details.provider);
+			$("#personal-provider").text(doc.data().details.provider.split(".")[0]);
 		})
 		.then(() => {
 			setTimeout(() => {
@@ -103,11 +141,6 @@ function setCurrentTime() {
 	checkIfMidnight();
 }
 
-//! using keyboard inputs here
-//? important
-//TODO: add universal class that all cancel buttons use that toggleOverlay("off")
-
-//! overlay.hasClass("hidden") repeats a lot
 function triggerClick(button) {
 	$(button).trigger("click");
 }
@@ -148,8 +181,6 @@ $(document).on("keydown", function (event) {
 	}
 });
 
-//! keyboard input end here
-
 $(document).on("keydown", "textarea", function (event) {
 	if (event.key === "Enter") {
 		event.preventDefault();
@@ -184,6 +215,9 @@ function setCurrentDate() {
 }
 
 function generateWeek(monday) {
+	$("#loading-icon").removeClass("hidden");
+	$(".week").removeClass("loaded");
+
 	unsubscribeFromPreviousWeek();
 	$(".week").children().not(".someday").remove();
 	for (let i = 0; i < 7; i++) {
@@ -198,7 +232,7 @@ function generateWeek(monday) {
 					<div class="day__badges"></div>
 				</div>
 				<div class="day__body">
-					<div class="day__tasks-wrapper">
+					<div class="day__tasks-wrapper" style="background-image:${$("body").hasClass("dark-theme") ? "url('assets/img/divider-dark.png')" : "url('assets/img/divider.png')"}">
 						<div class="add-task hidden">
 							<span class="task__text">Add a task...</span>
 						</div>
@@ -244,7 +278,7 @@ function checkIfCurrentWeek() {
 let touchBreakpoint = 900;
 let windowWidth = window.innerWidth;
 $(".touch-nav").toggleClass("hidden", windowWidth > touchBreakpoint);
-$("#prev,#next").toggleClass("hidden", windowWidth < touchBreakpoint);
+$("#prev,#next").toggleClass("hidden", touchBreakpoint >= windowWidth);
 
 $(window).resize(function () {
 	windowWidth = window.innerWidth;
@@ -306,15 +340,11 @@ function toggleOverlay(condition) {
 			$("body").addClass("overflow-hidden");
 			overlay.removeClass("hidden");
 			$(".overlay").scrollTop(0);
-			$(".touch-nav").addClass("hidden");
 			break;
 		case "off":
 			overlay.addClass("hidden");
 			$("body").removeClass("overflow-hidden");
 			overlay.children().remove();
-			if (windowWidth < touchBreakpoint) {
-				$(".touch-nav").removeClass("hidden");
-			}
 			break;
 	}
 }
@@ -367,8 +397,6 @@ function checkTasksLength() {
 	});
 }
 
-let remainingMinute = (60 - moment().seconds()) * 1000;
-
 $(document).on("click", "#google-sign-in", function () {
 	auth.signInWithPopup(googleProvider).then(function (user) {
 		if (user.additionalUserInfo.isNewUser) {
@@ -395,6 +423,9 @@ $(document).on("click", ".sign-out", function () {
 	auth.signOut();
 });
 
+let remainingMinute = (60 - moment().seconds()) * 1000;
+let remainingHour = 60 * 60 * 1000 - (moment().minute() * 60 + moment().seconds()) * 1000 - moment().milliseconds();
+
 auth.onAuthStateChanged(function (user) {
 	if (user) {
 		$(".loading").removeClass("hidden");
@@ -410,12 +441,20 @@ auth.onAuthStateChanged(function (user) {
 		subscribeToSettings();
 		setTimeout(function () {
 			checkReminders();
-			setGreeting();
 			setInterval(function () {
 				checkReminders();
-				setGreeting();
 			}, 60000);
 		}, remainingMinute);
+		setTimeout(function () {
+			hour = moment().hour();
+			setGreeting();
+			userAutoTheme && setAutoTheme();
+			setInterval(function () {
+				hour = moment().hour();
+				setGreeting();
+				userAutoTheme && setAutoTheme();
+			}, 3600000);
+		}, remainingHour);
 	} else {
 		$(".loading").remove();
 		unsubscribeFromPreviousWeek && unsubscribeFromPreviousWeek();
@@ -426,7 +465,6 @@ auth.onAuthStateChanged(function (user) {
 		toggleOverlay("off");
 		$(".clock").addClass("hidden");
 		$(".week").children().remove();
-		$("body").removeClass("dark-theme");
 		toggleOverlay("on");
 		overlay.addClass("overlay--sign-up");
 		overlay.append(signUp);
@@ -444,29 +482,43 @@ function renderTasks() {
 				.collection(`users/${auth.currentUser.uid}/weeks/${currentWeek}/${currentDay}`)
 				.orderBy("createdAt", "asc")
 				.onSnapshot((snapshot) => {
-					let changes = snapshot.docChanges();
-					changes.forEach((change) => {
-						switch (change.type) {
-							case "added":
-								let task = `
-									<div class="${change.doc.data().completed ? "task completed" : "task"}" data-task-id="${change.doc.id}">
-										<div class="task__text"><span></span></div>
-										<div class="task__time">${change.doc.data().time}</div>
-									</div>`;
-								$(`.day[data-day-id="${currentDay}"]`).find(".day__tasks-wrapper").prepend(task);
-								$(`.task[data-task-id="${change.doc.id}"]`).find(".task__text span").text(change.doc.data().title);
-								break;
-							case "removed":
+					if (!snapshot.empty) {
+						let changes = snapshot.docChanges();
+						changes.forEach((change) => {
+							switch (change.type) {
+								case "added":
+									let task = `
+										<div class="${change.doc.data().completed ? "task completed" : "task"}" data-task-id="${change.doc.id}">
+											<div class="task__text"><span></span></div>
+											<div class="task__time">${change.doc.data().time}</div>
+										</div>`;
+									$(`.day[data-day-id="${currentDay}"]`).find(".day__tasks-wrapper").prepend(task);
+									$(`.task[data-task-id="${change.doc.id}"]`).find(".task__text span").text(change.doc.data().title);
+									break;
+								case "removed":
+									$(`.task[data-task-id="${change.doc.id}"]`).not(".repeated").remove();
+									break;
+								case "modified":
+									$(`.task[data-task-id="${change.doc.id}"]`).toggleClass("completed", change.doc.data().completed);
+									$(`.task[data-task-id="${change.doc.id}"]`).find(".task__text span").text(change.doc.data().title);
+									$(`.task[data-task-id="${change.doc.id}"]`).find(".task__time").text(change.doc.data().time);
+									break;
+							}
+							checkTasksLength();
+						});
+						$(".week").addClass("loaded");
+						$("#loading-icon").addClass("hidden");
+					} else {
+						$(".week").addClass("loaded");
+						$("#loading-icon").addClass("hidden");
+						let changes = snapshot.docChanges();
+						changes.forEach((change) => {
+							if (change.type === "removed") {
 								$(`.task[data-task-id="${change.doc.id}"]`).not(".repeated").remove();
-								break;
-							case "modified":
-								$(`.task[data-task-id="${change.doc.id}"]`).toggleClass("completed", change.doc.data().completed);
-								$(`.task[data-task-id="${change.doc.id}"]`).find(".task__text span").text(change.doc.data().title);
-								$(`.task[data-task-id="${change.doc.id}"]`).find(".task__time").text(change.doc.data().time);
-								break;
-						}
+							}
+						});
 						checkTasksLength();
-					});
+					}
 				});
 			unsubscribeArray.push(unsubscribe);
 		});
@@ -918,6 +970,7 @@ function renderRepeatedTasks() {
 							</div>
 						`;
 						if (
+							doc.data().origin.week <= $(".week").attr("data-week-id") &&
 							$(".day").eq(doc.data().repeats[i]).attr("data-day-id") !== doc.data().origin.day &&
 							!doc.data().removedArray.includes($(".day").eq(doc.data().repeats[i]).attr("data-day-id"))
 						) {
@@ -1000,9 +1053,6 @@ $(document).on("click", "#close-reminder-dialog", function () {
 	$("#reminder-notification")[0].currentTime = 0;
 });
 
-//TODO: write a reusable function for all the #close dialog buttons or add a class
-//todo: something crazy about the watermarks is fucking happening
-
 calendarControls.click(function () {
 	switch ($(this).attr("id")) {
 		case "next":
@@ -1018,7 +1068,6 @@ calendarControls.click(function () {
 		case "settings":
 			toggleOverlay("on");
 			overlay.append(settingsDialog);
-			// $(".settings__section").removeClass("hidden");
 			loadSettings();
 			break;
 		default:
@@ -1031,17 +1080,17 @@ calendarControls.click(function () {
 	checkIfCurrentWeek();
 });
 
-//! rewrite this
 $(window).scroll(function () {
-	let windowTop = document.querySelector(".clock").getBoundingClientRect().top + window.scrollY;
+	windowTop = $(".clock").offset().top;
 	if (windowTop > 30) {
 		$(".clock").addClass("clock--sticky");
+		$(".gradient-background").removeClass("hidden");
 	} else {
 		$(".clock").removeClass("clock--sticky");
+		$(".gradient-background").addClass("hidden");
 	}
 });
 
-//* settings
 $(document).on("click", ".settings__option", function () {
 	$(this).addClass("active");
 	$(this).siblings().removeClass("active");
@@ -1075,6 +1124,7 @@ $(document).on("click", ".button--setting", function () {
 				},
 				{ merge: true }
 			);
+			userAutoTheme && setAutoTheme();
 			break;
 		case "showSomeday":
 			settingsRef.set(
@@ -1089,7 +1139,7 @@ $(document).on("click", ".button--setting", function () {
 	}
 });
 
-$("body").on("click", "#delete-user-account", function () {
+$("body").on("click", "#disable-user-account", function () {
 	db.collection("users").doc(auth.currentUser.uid).set({
 		isRemoved: true,
 	});
@@ -1104,7 +1154,6 @@ $("body").on("click", "#delete-user-account", function () {
 	});
 });
 
-// prevent contextmenu
 function absorbEvent_(event) {
 	var e = event || window.event;
 	e.preventDefault && e.preventDefault();

@@ -16,8 +16,8 @@
 		<meta name="msapplication-TileColor" content="#ffffff" />
 		<meta name="msapplication-config" content="assets/img/favicon/browserconfig.xml" />
 		<meta name="theme-color" content="#ffffff" />
-		<link rel="preload" href="/assets/fonts/SF-Pro-Display-Regular.otf" as="font" crossorigin />
-		<link rel="preload" href="/assets/fonts/SF-Pro-Display-Bold.otf" as="font" crossorigin />
+		<link rel="preload" href="assets/fonts/SF-Pro-Display-Regular.otf" as="font" crossorigin />
+		<link rel="preload" href="assets/fonts/SF-Pro-Display-Bold.otf" as="font" crossorigin />
 		<!-- Primary Meta Tags -->
 		<title>Proton Calendar</title>
 		<meta
@@ -44,17 +44,15 @@
 		<meta property="twitter:image" content="https://res.cloudinary.com/dbkhowucg/image/upload/v1627728340/proton_calendar/cover.png" />
 	</head>
 	<body>
-		<div class="loading hidden">
-			<img class="loading__logo" src="assets/img/loading-logo.svg" alt="logo" />
-			<span class="loading__details">V1.0.0 - Initial Release - July 2021</span>
-		</div>
 		<div class="overlay hidden"></div>
 		<div class="page-content">
+			<div class="gradient-background hidden"></div>
 			<div class="clock hidden">
 				<span class="clock__greeting"></span>
 				<span class="clock__time"></span>
 				<span class="clock__date"></span>
 				<div class="calendar-controls">
+					<div id="loading-icon" class="hidden"><img src="assets/img/loading-icon.svg" alt="loading-icon" /></div>
 					<div id="today" class="button button--text hidden">Jump to today</div>
 					<div id="settings" class="button button--alt"><img src="assets/img/settings.svg" alt="settings" /></div>
 					<div id="prev" class="button"><img src="assets/img/prev-week.svg" alt="prev-week" /></div>

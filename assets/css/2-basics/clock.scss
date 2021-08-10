@@ -2,7 +2,6 @@
 	top: 0;
 	position: sticky;
 	color: var(--accent);
-	background-color: var(--alternate);
 	* {
 		display: block;
 	}
@@ -18,19 +17,22 @@
 		line-height: 90%;
 	}
 	&--sticky {
-		padding: 15px;
-		border-radius: 0 0 2px 2px;
-		box-shadow: var(--drop-shadow);
-		width: calc(100% + 30px);
-		margin-left: -15px;
+		padding: 15px 0;
 		z-index: 1;
 		.clock {
 			&__greeting {
 				display: none;
 			}
 		}
-		.calendar-controls {
-			right: 15px;
-		}
 	}
+}
+
+.gradient-background {
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 125px;
+	width: 100%;
+	background: linear-gradient(180deg, var(--alternate) 65%, transparent 100%);
+	z-index: 1;
 }

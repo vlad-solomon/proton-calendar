@@ -60,6 +60,8 @@
 	}
 	&__tasks-wrapper {
 		min-height: 100%;
-		background-image: url("../img/divider.png");
+		display: flex;
+		flex-direction: column;
+		// background-image: url("../img/divider.png");
 	}
 }

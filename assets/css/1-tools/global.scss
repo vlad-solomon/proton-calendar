@@ -68,6 +68,11 @@ body {
 				filter: invert(100%);
 			}
 		}
+		.touch-nav {
+			.button img {
+				filter: none;
+			}
+		}
 	}
 }
 
@@ -75,6 +80,7 @@ a {
 	color: currentColor;
 	text-decoration: none;
 	font-family: "SF Bold";
+	white-space: nowrap;
 	&.no-after {
 		&::after {
 			display: none;
