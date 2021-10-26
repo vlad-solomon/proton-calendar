@@ -18,20 +18,6 @@ let db = firebase.firestore();
 let auth = firebase.auth();
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-// firebase
-// 	.firestore()
-// 	.enablePersistence()
-// 	.catch((err) => {
-// 		if (err.code == "failed-precondition") {
-// 			// Multiple tabs open, persistence can only be enabled
-// 			// in one tab at a a time.
-// 			// ...
-// 		} else if (err.code == "unimplemented") {
-// 			// The current browser does not support all of the
-// 			// features required to enable persistence
-// 			// ...
-// 		}
-// 	});
 let unsubscribe, unsubscribeFromSomeday, unsubscribeFromRepeats, unsubscribeFromSettings;
 let unsubscribeArray = [];
 
@@ -95,6 +81,7 @@ function setAutoTheme() {
 }
 
 function loadSettings() {
+	$("html").scrollTop($(".day__today").offset().top - 150);
 	$(".button--setting").addClass("button--off");
 	db.collection("users")
 		.doc(auth.currentUser.uid)
@@ -488,7 +475,9 @@ function renderTasks() {
 							switch (change.type) {
 								case "added":
 									let task = `
-										<div class="${change.doc.data().completed ? "task completed" : "task"}" data-task-id="${change.doc.id}">
+										<div class="${change.doc.data().completed ? "task completed" : "task"}" data-task-id="${change.doc.id}" style="order: ${
+										change.doc.data().time ? parseInt(change.doc.data().time.replace(":", "")) : "9999"
+									}">
 											<div class="task__text"><span></span></div>
 											<div class="task__time">${change.doc.data().time}</div>
 										</div>`;
@@ -499,6 +488,7 @@ function renderTasks() {
 									$(`.task[data-task-id="${change.doc.id}"]`).not(".repeated").remove();
 									break;
 								case "modified":
+									$(`.task[data-task-id="${change.doc.id}"]`).css("order", `${change.doc.data().time ? parseInt(change.doc.data().time.replace(":", "")) : "9999"}`);
 									$(`.task[data-task-id="${change.doc.id}"]`).toggleClass("completed", change.doc.data().completed);
 									$(`.task[data-task-id="${change.doc.id}"]`).find(".task__text span").text(change.doc.data().title);
 									$(`.task[data-task-id="${change.doc.id}"]`).find(".task__time").text(change.doc.data().time);
@@ -942,7 +932,6 @@ function subscribeToRepeatedTasks() {
 		});
 }
 
-//todo stop tasks repeating behind the root-repeated date
 function renderRepeatedTasks() {
 	db.collection(`users/${auth.currentUser.uid}/repeats`)
 		.get()
@@ -963,7 +952,8 @@ function renderRepeatedTasks() {
 					db.collection(`users/${auth.currentUser.uid}/weeks/${doc.data().origin.week}/${doc.data().origin.day}`).doc(doc.id).delete();
 					for (i = 0; i < doc.data().repeats.length; i++) {
 						let task = `
-							<div class="repeated ${doc.data().completedArray.includes($(".day").eq(doc.data().repeats[i]).attr("data-day-id")) ? "task completed" : "task"}" data-task-id="${doc.id}">
+							<div class="repeated ${doc.data().completedArray.includes($(".day").eq(doc.data().repeats[i]).attr("data-day-id")) ? "task completed" : "task"}" data-task-id="${doc.id}"
+							style="order: ${parseInt(doc.data().time.replace(":", ""))}">
 								<div class="task__text">
 									<img src="assets/img/repeat.svg" title="This is a repeated task!"><span></span></div>
 								<div class="task__time">${doc.data().time}</div>
@@ -978,7 +968,8 @@ function renderRepeatedTasks() {
 						}
 					}
 					let rootRepeatedTask = `
-						<div class="root-repeated repeated ${doc.data().completedArray.includes(doc.data().origin.day) ? "task completed" : "task"}" data-task-id="${doc.id}">
+						<div class="root-repeated repeated ${doc.data().completedArray.includes(doc.data().origin.day) ? "task completed" : "task"}" data-task-id="${doc.id}"
+						style="order: ${parseInt(doc.data().time.replace(":", ""))}">
 							<div class="task__text"><span></span></div>
 							<div class="task__time">${doc.data().time}</div>
 						</div>
