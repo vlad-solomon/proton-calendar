@@ -1,6 +1,6 @@
 const version = {
-	release: "1.0.1",
-	date: "August 2021",
+	release: "1.0.2",
+	date: "October 2021",
 };
 
 const loadingScreen = `

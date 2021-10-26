@@ -318,7 +318,6 @@ kbd {
     height: 40px;
     font-size: 0.875rem;
     cursor: pointer;
-    order: 2;
 }
 .task:hover, .add-task:hover {
     background-color: var(--task-hover);
@@ -337,9 +336,6 @@ kbd {
     left: 0;
     width: 100%;
     border-bottom: 1px solid var(--accent);
-}
-.task.repeated, .repeated.add-task {
-    order: 1;
 }
 .task__text {
     width: 80%;
@@ -361,6 +357,10 @@ kbd {
 }
 .task__badges img:hover {
     transform: scale(1.25);
+}
+
+.add-task {
+    order: 9999;
 }
 
 .button, .create-task .cell .week-days__button, #loading-icon {

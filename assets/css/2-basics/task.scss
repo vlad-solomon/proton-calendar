@@ -5,7 +5,7 @@
 	height: 40px;
 	font-size: 0.875rem;
 	cursor: pointer;
-	order: 2;
+	// order: 2;
 	&:hover {
 		background-color: var(--task-hover);
 		box-shadow: -20px 0 0 1px var(--task-hover), 20px 0 0 1px var(--task-hover);
@@ -24,9 +24,9 @@
 		}
 		opacity: 0.5;
 	}
-	&.repeated {
-		order: 1;
-	}
+	// &.repeated {
+	// 	order: 1;
+	// }
 	&__text {
 		width: 80%;
 		overflow: hidden;
@@ -54,4 +54,5 @@
 
 .add-task {
 	@extend .task;
+	order: 9999;
 }
