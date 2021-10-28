@@ -1,5 +1,5 @@
 const version = {
-	release: "1.0.4",
+	release: "1.1.0",
 	date: "October 2021",
 };
 
@@ -129,7 +129,7 @@ const settingsDialog = `
 			</div>
 		</div>
 		<div class="settings__section hidden" data-option="account">
-			<span class="settings__group-title">Accout</span>
+			<span class="settings__group-title">Account</span>
 			<div class="mobile-drawer">
 				<span class="settings__title">Personal information</span>
 				<span class="settings__text">Name <strong id="personal-name"></strong></span>

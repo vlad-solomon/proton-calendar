@@ -232,6 +232,11 @@ function generateWeek(monday) {
 	renderTasks();
 	renderRepeatedTasks();
 	checkToday();
+
+	let firstDay = $(".day").eq(1).attr("data-day-id").replace(/-/g, "/");
+	let unix = moment(`${firstDay} 0:00`, "DD/MM/YYYY HH:mm").valueOf();
+
+	$(".week").attr("data-week-unix", unix);
 }
 
 function checkToday() {
@@ -614,6 +619,7 @@ $(document).on("click", "#accept", function () {
 					origin: {
 						week: selectedWeek,
 						day: selectedDay,
+						unixWeek: $(".week").attr("data-week-unix"),
 					},
 					createdAt: moment().format("HH:mm:ss"),
 				},
@@ -648,6 +654,7 @@ $(document).on("click", "#accept", function () {
 					origin: {
 						week: selectedWeek,
 						day: selectedDay,
+						unixWeek: $(".week").attr("data-week-unix"),
 					},
 					createdAt: moment().format("HH:mm:ss"),
 				},
@@ -668,6 +675,7 @@ $(document).on("click", "#accept", function () {
 					origin: {
 						week: requestedDocument.origin.week,
 						day: requestedDocument.origin.day,
+						unixWeek: requestedDocument.origin.unixWeek,
 					},
 					createdAt: requestedDocument.createdAt,
 				},
@@ -765,7 +773,6 @@ $(document).on("click", ".task", function () {
 		});
 });
 
-// * experimenting
 $(document).on("contextmenu taphold", ".task", function (event) {
 	event.preventDefault();
 
@@ -953,15 +960,14 @@ function renderRepeatedTasks() {
 					for (i = 0; i < doc.data().repeats.length; i++) {
 						let task = `
 							<div class="repeated ${doc.data().completedArray.includes($(".day").eq(doc.data().repeats[i]).attr("data-day-id")) ? "task completed" : "task"}" data-task-id="${doc.id}"
-							style="order: ${parseInt(doc.data().time.replace(":", ""))}">
+							style="order: ${doc.data().time ? parseInt(doc.data().time.replace(":", "")) : "9999"}">
 								<div class="task__text">
 									<img src="assets/img/repeat.svg" title="This is a repeated task!"><span></span></div>
 								<div class="task__time">${doc.data().time}</div>
 							</div>
 						`;
 						if (
-							// todo compare unix timestamps
-							// doc.data().origin.week.split("-").reverse().join("-") <= $(".week").attr("data-week-id").split("-").reverse().join("-") &&
+							doc.data().origin.unixWeek <= $(".week").attr("data-week-unix") &&
 							$(".day").eq(doc.data().repeats[i]).attr("data-day-id") !== doc.data().origin.day &&
 							!doc.data().removedArray.includes($(".day").eq(doc.data().repeats[i]).attr("data-day-id"))
 						) {
@@ -970,7 +976,7 @@ function renderRepeatedTasks() {
 					}
 					let rootRepeatedTask = `
 						<div class="root-repeated repeated ${doc.data().completedArray.includes(doc.data().origin.day) ? "task completed" : "task"}" data-task-id="${doc.id}"
-						style="order: ${parseInt(doc.data().time.replace(":", ""))}">
+						style="order: ${doc.data().time ? parseInt(doc.data().time.replace(":", "")) : "9999"}">
 							<div class="task__text"><span></span></div>
 							<div class="task__time">${doc.data().time}</div>
 						</div>

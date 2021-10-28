@@ -791,6 +791,9 @@ kbd {
 .weather .card__text--temperature-mobile {
     display: none;
 }
+.weather .card__text--time {
+    width: 50px;
+}
 
 .settings {
     max-width: 550px;
