@@ -81,7 +81,6 @@ function setAutoTheme() {
 }
 
 function loadSettings() {
-	$("html").scrollTop($(".day__today").offset().top - 150);
 	$(".button--setting").addClass("button--off");
 	db.collection("users")
 		.doc(auth.currentUser.uid)
@@ -426,6 +425,7 @@ auth.onAuthStateChanged(function (user) {
 		getReminders();
 		subscribeToRepeatedTasks();
 		subscribeToSettings();
+		$("html").scrollTop($(".day__today").offset().top - 150);
 		setTimeout(function () {
 			checkReminders();
 			setInterval(function () {
@@ -960,7 +960,8 @@ function renderRepeatedTasks() {
 							</div>
 						`;
 						if (
-							doc.data().origin.week <= $(".week").attr("data-week-id") &&
+							// todo compare unix timestamps
+							// doc.data().origin.week.split("-").reverse().join("-") <= $(".week").attr("data-week-id").split("-").reverse().join("-") &&
 							$(".day").eq(doc.data().repeats[i]).attr("data-day-id") !== doc.data().origin.day &&
 							!doc.data().removedArray.includes($(".day").eq(doc.data().repeats[i]).attr("data-day-id"))
 						) {
