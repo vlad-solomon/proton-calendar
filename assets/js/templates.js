@@ -1,6 +1,6 @@
 const version = {
-	release: "1.1.0",
-	date: "October 2021",
+	release: "1.2.0",
+	date: "November 2021",
 };
 
 const loadingScreen = `
@@ -36,7 +36,10 @@ const signUp = `
 			With it’s light and simple interface, Proton will help you plan your weeks from now on. Add, modify, delete, even make recursive tasks so you’ll keep your schedule tight, all for
 			free, no premium plans, no subscriptions.
 		</span>
-		<div class="button button--text" id="google-sign-in">Sign in with Google</div>
+		<div class="sign-in__buttons">
+			<div class="button button--text" id="google-sign-in"><i class="fab fa-google"></i>Sign in with Google</div>
+			<div class="button button--text" id="facebook-sign-in"><i class="fab fa-facebook-f"></i>Sign in with Facebook</div>
+		</div>
 		<div class="button button--text hidden" id="sign-up__button">Take life one week at a time</div>
 		<div class="sign-up__footer">
 			<span>Designed & developed by <a href="https://github.com/vlad-solomon" target="_blank">Vlad Solomon</a></span>
@@ -194,4 +197,19 @@ const settingsDialog = `
 		</div>
 	</div>
 	<div class="button button__close"><img src="assets/img/cancel.svg" alt="cancel" /></div>
+`;
+
+const signUpError = `
+	<div class="sign-up-error">
+		<div class="sign-up-error__modal">
+			<img src="assets/img/warning.svg" alt="warning">
+			<span class="sign-up-error__error">
+				An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address.
+			</span>
+			<span id="error-email">email</span>
+		</div>
+		<div class="button" id="close-error">
+			<img src="assets/img/cancel.svg" alt="cancel">
+		</div>
+	</div>
 `;

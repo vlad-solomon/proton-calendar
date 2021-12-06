@@ -27,6 +27,9 @@
 	}
 	.button,
 	.input__text {
+		i {
+			margin-right: 10px;
+		}
 		width: 50%;
 		margin-bottom: 30px;
 	}
@@ -44,5 +47,45 @@
 				text-align: right;
 			}
 		}
+	}
+	&-error {
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: 100%;
+		width: 100%;
+		background-color: rgba(240, 240, 240, 0.4);
+		-webkit-backdrop-filter: blur(10px);
+		backdrop-filter: blur(10px);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+		&__modal {
+			padding: 15px;
+			max-width: 400px;
+			background-color: var(--alternate);
+			box-shadow: 6px 0 8px rgb(0 0 0 / 2%), 12px 0 16px rgb(0 0 0 / 2%), 24px 0 32px rgb(0 0 0 / 2%);
+			border-radius: 4px;
+			margin: 0 10px 40px 10px;
+			img {
+				margin: 0 auto 15px auto;
+			}
+			span {
+				display: block;
+				text-align: center;
+			}
+			#error-email {
+				margin-top: 15px;
+				font-family: "SF Bold";
+			}
+		}
+	}
+}
+
+.sign-in__buttons {
+	display: flex;
+	.button:first-of-type {
+		margin-right: 15px;
 	}
 }

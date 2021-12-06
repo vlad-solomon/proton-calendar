@@ -17,6 +17,7 @@ $.event.special.tap.tapholdThreshold = 250;
 let db = firebase.firestore();
 let auth = firebase.auth();
 const googleProvider = new firebase.auth.GoogleAuthProvider();
+const fbProvider = new firebase.auth.FacebookAuthProvider();
 
 let unsubscribe, unsubscribeFromSomeday, unsubscribeFromRepeats, unsubscribeFromSettings;
 let unsubscribeArray = [];
@@ -123,7 +124,7 @@ function setCurrentTime() {
 	let currentTime = moment().format("HH:mm:ss");
 	clockTime.text(currentTime);
 
-	document.title = isReminding ? "You've got a reminder!" : `Proton ∣ ${currentTime}`;
+	document.title = isReminding ? "You've got a reminder!" : "Proton Calendar";
 	checkIfMidnight();
 }
 
@@ -376,7 +377,7 @@ function setGreeting() {
 }
 function checkTasksLength() {
 	$(".day").each(function () {
-		let totalTasks = $(this).find(".task").length - $(this).find(".task.completed").length;
+		let totalTasks = $(this).find(".task").length - $(this).find(".task.completed, .task.hidden").length;
 		if (totalTasks > 0) {
 			$(this).find(".day__badges").find(".day__task").text(totalTasks);
 			if ($(this).find(".day__badges").find(".day__task").length == 0) {
@@ -406,8 +407,59 @@ $(document).on("click", "#google-sign-in", function () {
 						showSomeday: "show",
 					},
 				});
+		} else if (
+			db
+				.collection("users")
+				.doc(auth.currentUser.uid)
+				.get()
+				.then((doc) => {
+					doc.data().details.provider !== "google.com";
+				})
+		) {
+			db.collection("users")
+				.doc(auth.currentUser.uid)
+				.set(
+					{
+						details: {
+							provider: "google.com",
+						},
+					},
+					{ merge: true }
+				);
 		}
 	});
+});
+
+$(document).on("click", "#facebook-sign-in", function () {
+	auth.signInWithPopup(fbProvider)
+		.then(function (user) {
+			if (user.additionalUserInfo.isNewUser) {
+				db.collection("users")
+					.doc(auth.currentUser.uid)
+					.set({
+						details: {
+							longName: user.additionalUserInfo.profile.name,
+							shortName: user.additionalUserInfo.profile.given_name || user.additionalUserInfo.profile.first_name,
+							email: user.additionalUserInfo.profile.email,
+							provider: user.additionalUserInfo.providerId,
+						},
+						settings: {
+							name: "long",
+							theme: "light",
+							showSomeday: "show",
+						},
+					});
+			}
+		})
+		.catch((err) => {
+			console.log(err);
+			$(".overlay").append(signUpError);
+			$("#error-email").text(err.email);
+		});
+});
+
+$(document).on("click", "#close-error", function () {
+	$(".sign-up-error").remove();
 });
 
 $(document).on("click", ".sign-out", function () {
@@ -428,7 +480,7 @@ auth.onAuthStateChanged(function (user) {
 		renderSomedayTasks();
 		generateWeek(currentMonday);
 		getReminders();
-		subscribeToRepeatedTasks();
+		// renderRepeatedTasks();
 		subscribeToSettings();
 		$("html").scrollTop($(".day__today").offset().top - 150);
 		setTimeout(function () {
@@ -732,8 +784,18 @@ $(document).on("click contextmenu taphold", ".task", function () {
 
 let requestedDocument;
 
+const repeatWarning = `
+	<div class="overlay__warning">
+		<img src="assets/img/warning.svg" alt="warning">
+		<p>This is a repeated task from <span id="task-from-day"></span><br>Any changes will modify the original task</p>
+	</div>
+`;
+
 $(document).on("click", ".task", function () {
 	isEditingTask = true;
+	if ($(this).hasClass("repeated") && !$(this).hasClass("root-repeated")) {
+		$(".overlay__heading").after(repeatWarning);
+	}
 	db.collection(pathToTask)
 		.doc(taskId)
 		.get()
@@ -741,15 +803,7 @@ $(document).on("click", ".task", function () {
 			if (doc.exists) {
 				requestedDocument = doc.data();
 				if (requestedDocument.repeats && requestedDocument.repeats.length > 0) {
-					const repeatWarning = `
-						<div class="overlay__warning">
-							<img src="assets/img/warning.svg" alt="warning">
-							<p>This is a repeated task from ${requestedDocument.origin.day.replace(/-/g, ".")}<br>Any changes will modify the original task</p>
-						</div>
-					`;
-					if (!$(this).hasClass("root-repeated")) {
-						$(".overlay__heading").after(repeatWarning);
-					}
+					$("#task-from-day").text(requestedDocument.origin.day.replace(/-/g, "."));
 				}
 				$("#task-title").val(doc.data().title);
 				$("#task-description").val(doc.data().description);
@@ -857,6 +911,7 @@ $(document).on("click", ".task-options__option", function () {
 						});
 				} else {
 					db.collection(pathToTask).doc(taskId).delete().then(getReminders);
+					db.collection(`users/${auth.currentUser.uid}/weeks/${taskWeek}/${taskDay}`).doc(taskId).delete().then(getReminders);
 				}
 				break;
 		}
@@ -916,7 +971,8 @@ function renderSomedayTasks() {
 		});
 }
 
-function subscribeToRepeatedTasks() {
+function renderRepeatedTasks() {
+	// $(".task.repeated").remove()
 	unsubscribeFromRepeats = db
 		.collection(`users/${auth.currentUser.uid}/repeats`)
 		.orderBy("createdAt", "asc")
@@ -925,10 +981,10 @@ function subscribeToRepeatedTasks() {
 			changes.forEach((change) => {
 				switch (change.type) {
 					case "added":
-						renderRepeatedTasks();
+						handleRepeats();
 						break;
 					case "modified":
-						renderRepeatedTasks();
+						handleRepeats();
 						break;
 					case "removed":
 						$(`.task.repeated[data-task-id="${change.doc.id}"]`).remove();
@@ -939,7 +995,7 @@ function subscribeToRepeatedTasks() {
 		});
 }
 
-function renderRepeatedTasks() {
+function handleRepeats() {
 	db.collection(`users/${auth.currentUser.uid}/repeats`)
 		.get()
 		.then(function (querySnapshot) {
@@ -951,12 +1007,11 @@ function renderRepeatedTasks() {
 						.set(doc.data(), { merge: true })
 						.then(function () {
 							db.collection(`users/${auth.currentUser.uid}/repeats`).doc(doc.id).delete();
-							db.collection(`users/${auth.currentUser.uid}/weeks/${doc.data().origin.week}/${doc.data().origin.day}`)
-								.doc(doc.id)
-								.update({ removedArray: firebase.firestore.FieldValue.delete(), completedArray: firebase.firestore.FieldValue.delete() });
+							db.collection(`users/${auth.currentUser.uid}/weeks/${doc.data().origin.week}/${doc.data().origin.day}`).doc(doc.id).update({ removedArray: [], completedArray: [] });
+							$(`.task[data-task-id="${doc.id}"]`).removeClass("hidden");
 						});
 				} else {
-					db.collection(`users/${auth.currentUser.uid}/weeks/${doc.data().origin.week}/${doc.data().origin.day}`).doc(doc.id).delete();
+					// db.collection(`users/${auth.currentUser.uid}/weeks/${doc.data().origin.week}/${doc.data().origin.day}`).doc(doc.id).delete();
 					for (i = 0; i < doc.data().repeats.length; i++) {
 						let task = `
 							<div class="repeated ${doc.data().completedArray.includes($(".day").eq(doc.data().repeats[i]).attr("data-day-id")) ? "task completed" : "task"}" data-task-id="${doc.id}"
@@ -988,6 +1043,7 @@ function renderRepeatedTasks() {
 
 					$(`.task[data-task-id="${doc.id}"]`).find(".task__text span").text(doc.data().title);
 				}
+				$(`.task:not(".repeated")[data-task-id="${doc.id}"]`).addClass("hidden");
 				checkTasksLength();
 			});
 		});
